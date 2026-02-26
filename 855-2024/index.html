@@ -5,34 +5,145 @@
 <title>Informe Huella de Carbono</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', sans-serif;
     margin: 40px;
-    color: #222;
+    background-color: #f4f6f5;
+    color: #1f2a24;
 }
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #1b5e20;
+}
+
 .logo-header img { height: 150px; }
-h1 { color: #1b5e20; margin-bottom: 5px; }
-.subtitulo { margin: 0; }
-.resultado-principal { text-align: center; margin: 30px 0; }
-.recuadro-huella { display: inline-block; border: 1px solid #ddd; padding: 15px 30px; border-radius: 6px; margin-bottom: 15px; }
-.resultado-principal h2 { font-size: 46px; color: #1b5e20; margin: 0; }
-.grid { display: flex; gap: 40px; margin-top: 30px; }
-.card { flex: 1; border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
-.card h3 { margin-top: 0; color: #2e7d32; }
-.tabla-emisiones { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-.tabla-emisiones td { padding: 6px 4px; border-bottom: 1px solid #eee; }
-.tabla-emisiones .titulo { font-weight: bold; padding-top: 12px; border-bottom: 2px solid #1b5e20; }
-.tabla-emisiones .valor { text-align: right; font-weight: bold; }
-.footer { margin-top: 40px; font-size: 12px; color: #777; }
+
+h1 { color: #1b5e20; margin-bottom: 5px; font-weight: 600; }
+
+.subtitulo { margin: 0; font-size: 14px; color: #4f6359; }
+
+/* CARDS */
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    border: 1px solid #e5e7e6;
+    margin-bottom: 10px;
+}
+
+.card h2, .card h3 {
+    margin-top: 0;
+    color: #1b5e20;
+    font-weight: 600;
+}
+
+/* KPI */
+.resultado-principal {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.kpi-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #5c6f66;
+    margin-bottom: 10px;
+}
+
+.recuadro-huella {
+    display: inline-block;
+    border: 1px solid #dcdede;
+    background-color: #eaf3ed;
+    padding: 20px 45px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.resultado-principal h2 {
+    font-size: 50px;
+    color: #145a32;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* GRID */
+.grid {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 50px;
+    margin-top: 40px;
+}
+
+/* GRÁFICOS */
+.chart-pie {
+    width: 500px;
+    height: 420px;
+    position: relative;
+}
+
+.chart-bar {
+    width: 500px;
+    height: 220px;
+    position: relative;
+}
+
+/* TABLA */
+.tabla-emisiones {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    font-size: 14px;
+}
+
+.tabla-emisiones td {
+    padding: 6px 4px;
+    border-bottom: 1px solid #eee;
+}
+
+.tabla-emisiones .titulo {
+    font-weight: 600;
+    padding-top: 12px;
+    border-bottom: 2px solid #1b5e20;
+}
+
+.tabla-emisiones .valor {
+    text-align: right;
+    font-weight: 600;
+}
+
+/* FOOTER */
+.footer {
+    margin-top: 50px;
+    font-size: 12px;
+    color: #6b7d75;
+    text-align: center;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+    .grid { flex-direction: column; align-items: center; }
+    .chart-pie, .chart-bar { width: 100%; max-width: 600px; }
+}
+
+.card-complementaria {
+    height: 287px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- Encabezado -->
 <div class="header">
     <div>
         <h1>Informe de Huella de Carbono</h1>
@@ -46,7 +157,7 @@ h1 { color: #1b5e20; margin-bottom: 5px; }
     </div>
 </div>
 
-<!-- Introducción -->
+<!-- 🔹 INTRODUCCIÓN RESTAURADA -->
 <div class="card">
     <h2>Introducción</h2>
     <p>
@@ -67,28 +178,42 @@ h1 { color: #1b5e20; margin-bottom: 5px; }
     </p>
 </div>
 
-<!-- Resultado principal -->
 <div class="resultado-principal">
+    <div class="kpi-label">Intensidad de emisión</div>
     <div class="recuadro-huella">
         <h2>1,05 kg CO₂e / kg FPCM</h2>
     </div>
     <p>Secuestro: 0,26 kg CO₂e / kg FPCM</p>
     <p>Huella calculada a la salida del tambo</p>
-    <p><strong>PACN - Calculador Lácteos V.1.3. 2024</strong></p>
 </div>
 
 <div class="grid">
-    <!-- Gráfico torta -->
-    <div class="card">
-        <h3>Distribución por Fuente</h3>
-        <canvas id="graficoFuentes"></canvas>
+
+    <div>
+        <div class="card">
+            <h3>Distribución por Fuente</h3>
+            <div class="chart-pie">
+                <canvas id="graficoFuentes"></canvas>
+            </div>
+        </div>
+
+        <!-- NUEVA TARJETA COMPLEMENTARIA -->
+       <div class="card card-complementaria">
+    <h3>Participación por tipo de GEI (%)</h3>
+    <div style="height:220px;">
+        <canvas id="graficoGEI"></canvas>
+    </div>
+</div>
     </div>
 
-    <!-- Barra + Tabla -->
     <div class="card">
         <h3>Emisiones Directas e Indirectas (%)</h3>
-        <canvas id="graficoDirectas"></canvas>
 
+        <div class="chart-bar">
+            <canvas id="graficoDirectas"></canvas>
+        </div>
+
+        <!-- TABLA EXACTA ORIGINAL -->
         <table class="tabla-emisiones">
             <tr><td class="titulo" colspan="2">Emisiones Directas</td></tr>
             <tr><td>Fermentación entérica</td><td class="valor">61,6%</td></tr>
@@ -110,10 +235,11 @@ h1 { color: #1b5e20; margin-bottom: 5px; }
             <tr><td class="valor"><strong>Total Indirectas</strong></td><td class="valor"><strong>5,9%</strong></td></tr>
         </table>
     </div>
+
 </div>
 
-<!-- Tarjeta resumen -->
-<div class="card" style="margin-top:40px;">
+<!-- RESULTADOS COMPLETOS -->
+<div class="card">
     <h2>Resultados del Establecimiento</h2>
     <p>
         El resultado de las emisiones de GEI generadas a la salida del tambo
@@ -143,54 +269,86 @@ Informe de uso exclusivo del establecimiento. Prohibida su reproducción sin aut
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
-    // Gráfico torta
-    new Chart(document.getElementById('graficoFuentes'), {
-        type: 'pie',
-        data: {
-            labels: [
-                'Fermentación entérica',
-                'Estiércol en pasturas',
-                'Gestión del Estiércol',
-                'Residuos de cultivos',
-                'Aplicación de fertilizantes',
-                'Combustibles',
-                'Indirectas (total)'
-            ],
-            datasets: [{
-                data: [61.6,11.3,5.9,4.1,3.2,8.0,5.9],
-                backgroundColor: [
-                    '#1b5e20',
-                    '#2e7d32',
-                    '#388e3c',
-                    '#43a047',
-                    '#66bb6a',
-                    '#81c784',
-                    '#c8e6c9'
-                ]
-            }]
-        }
-    });
-
-    // Barra horizontal apilada
-    new Chart(document.getElementById('graficoDirectas'), {
-        type: 'bar',
-        data: {
-            labels: ['Participación sobre el total (%)'],
-            datasets: [
-                { label: 'Directas (%)', data: [94.1], backgroundColor: '#1b5e20' },
-                { label: 'Indirectas (%)', data: [5.9], backgroundColor: '#a5d6a7' }
+new Chart(document.getElementById('graficoFuentes'), {
+    type: 'pie',
+    data: {
+        labels: [
+            'Fermentación entérica',
+            'Estiércol en pasturas',
+            'Gestión del Estiércol',
+            'Residuos de cultivos',
+            'Aplicación de fertilizantes',
+            'Combustibles',
+            'Indirectas (total)'
+        ],
+        datasets: [{
+            data: [61.6,11.3,5.9,4.1,3.2,8.0,5.9],
+            backgroundColor: [
+                '#145a32','#1e8449','#239b56',
+                '#52be80','#7dcea0','#a9dfbf','#d5f5e3'
             ]
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+});
+
+new Chart(document.getElementById('graficoDirectas'), {
+    type: 'bar',
+    data: {
+        labels: ['Participación sobre el total (%)'],
+        datasets: [
+            { label: 'Directas (%)', data: [94.1], backgroundColor: '#145a32' },
+            { label: 'Indirectas (%)', data: [5.9], backgroundColor: '#a9dfbf' }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        scales: {
+            x: { stacked: true, max: 100, beginAtZero: true },
+            y: { stacked: true }
+        }
+    }
+});
+
+new Chart(document.getElementById('graficoGEI'), {
+    type: 'bar',
+    data: {
+        labels: [
+            'CH₄',
+            'N₂O',
+            'CO₂ fósil',
+            'Otros GEI'
+        ],
+        datasets: [{
+            data: [64.2, 23.3, 11.5, 1.0],
+            backgroundColor: [
+                '#E63946',   // rojo técnico
+                '#457B9D',   // azul profesional
+                '#F4A261',   // naranja sobrio
+                '#6C757D'    // gris institucional
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
         },
-        options: {
-            responsive: true,
-            indexAxis: 'y',
-            scales: {
-                x: { stacked: true, max: 100, beginAtZero: true },
-                y: { stacked: true }
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                title: {
+                    display: true,
+                    text: '% GEI del total'
+                }
             }
         }
-    });
-
+    }
+});
 });
 </script>
 

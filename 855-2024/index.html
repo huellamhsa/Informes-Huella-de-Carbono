@@ -268,23 +268,23 @@ const datos = {
     indirectas: 5.9,
 
     fuentes: {
-    // 🔹 DIRECTAS
-    fermentacion: 105937,
-    estiercolPastura: 19465,
-    gestionEstiercol: 10164,
-    residuosCultivos: 6972,
-    fertilizantes: 5550,
-    combustible: 13710,
+        // 🔹 DIRECTAS
+        fermentacion: 105937,
+        estiercolPastura: 19465,
+        gestionEstiercol: 10164,
+        residuosCultivos: 6972,
+        fertilizantes: 5550,
+        combustible: 13710,
 
-    // 🔹 INDIRECTAS
-    limpieza: 344,
-    trasladoAnimales: 0,
-    compraAlimentos: 8067,
-    energiaElectrica: 516,
-    produccionFertilizantes: 688,
-    transporteInsumos: 344,
-    otrosInsumos: 145
-}
+        // 🔹 INDIRECTAS
+        limpieza: 344,
+        trasladoAnimales: 0,
+        compraAlimentos: 8067,
+        energiaElectrica: 516,
+        produccionFertilizantes: 688,
+        transporteInsumos: 344,
+        otrosInsumos: 145
+    }
 };
 
 // ===============================
@@ -302,79 +302,58 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("valorSecuestro").innerText =
         datos.secuestro.toFixed(2).replace(".", ",");
 
-// =========================================================
-// 🔹 GRÁFICO TORTA (FUENTES AGRUPADAS)
-// =========================================================
+    // =========================================================
+    // 🔹 CLAVES
+    // =========================================================
 
-// 🔹 Claves directas e indirectas
-const directasKeys = [
-    "fermentacion",
-    "estiercolPastura",
-    "gestionEstiercol",
-    "residuosCultivos",
-    "fertilizantes",
-    "combustible"
-];
+    const directasKeys = [
+        "fermentacion","estiercolPastura","gestionEstiercol",
+        "residuosCultivos","fertilizantes","combustible"
+    ];
 
-const indirectasKeys = [
-    "limpieza",
-    "trasladoAnimales",
-    "compraAlimentos",
-    "energiaElectrica",
-    "produccionFertilizantes",
-    "transporteInsumos",
-    "otrosInsumos"
-];
+    const indirectasKeys = [
+        "limpieza","trasladoAnimales","compraAlimentos",
+        "energiaElectrica","produccionFertilizantes",
+        "transporteInsumos","otrosInsumos"
+    ];
 
-// 🔹 Total general
-const totalFuentes = Object.values(datos.fuentes)
-    .reduce((acc, val) => acc + val, 0);
+    const totalFuentes = Object.values(datos.fuentes)
+        .reduce((acc, val) => acc + val, 0);
 
-// 🔹 Valores directas
-const valoresDirectas = directasKeys.map(key => datos.fuentes[key]);
+    // =========================================================
+    // 🔹 GRÁFICO TORTA (INDIRECTAS AGRUPADAS)
+    // =========================================================
 
-// 🔹 Total indirectas agrupadas
-const totalIndirectasAgrupadas = indirectasKeys
-    .reduce((acc, key) => acc + datos.fuentes[key], 0);
+    const valoresDirectas = directasKeys.map(k => datos.fuentes[k]);
 
-// 🔹 Datos finales del gráfico
-const datosTorta = [
-    ...valoresDirectas,
-    totalIndirectasAgrupadas
-].map(valor =>
-    parseFloat(((valor / totalFuentes) * 100).toFixed(1))
-);
+    const totalIndirectasAgrupadas = indirectasKeys
+        .reduce((acc, k) => acc + datos.fuentes[k], 0);
 
-new Chart(document.getElementById('graficoFuentes'), {
-    type: 'pie',
-    data: {
-        labels: [
-            'Fermentación entérica',
-            'Estiércol en pasturas',
-            'Gestión del estiércol',
-            'Residuos de cultivos',
-            'Aplicación de fertilizantes',
-            'Combustibles',
-            'Emisiones indirectas'
-        ],
-        datasets: [{
-            data: datosTorta,
-            backgroundColor: [
-                '#1b5e20',
-                '#2e7d32',
-                '#388e3c',
-                '#43a047',
-                '#66bb6a',
-                '#81c784',
-                '#a5d6a7'
-            ]
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
-    }
-});
+    const datosTorta = [...valoresDirectas, totalIndirectasAgrupadas]
+        .map(v => parseFloat(((v / totalFuentes) * 100).toFixed(1)));
+
+    new Chart(document.getElementById('graficoFuentes'), {
+        type: 'pie',
+        data: {
+            labels: [
+                'Fermentación entérica',
+                'Estiércol en pasturas',
+                'Gestión del estiércol',
+                'Residuos de cultivos',
+                'Aplicación de fertilizantes',
+                'Combustibles',
+                'Emisiones indirectas'
+            ],
+            datasets: [{
+                data: datosTorta,
+                backgroundColor: [
+                    '#1b5e20','#2e7d32','#388e3c',
+                    '#43a047','#66bb6a','#81c784','#a5d6a7'
+                ]
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
 
     // =========================================================
     // 🔹 DIRECTAS VS INDIRECTAS
@@ -404,210 +383,166 @@ new Chart(document.getElementById('graficoFuentes'), {
     // 🔹 GEI
     // =========================================================
 
-  const porcentajeGEI = [
-    datos.gei.metanoBiogenico,
-    datos.gei.n2o,
-    datos.gei.co2Fosil,
-    datos.gei.otros
-].map(valor =>
-    parseFloat(((valor / datos.totalEmisiones) * 100).toFixed(1))
-);
+    const porcentajeGEI = Object.values(datos.gei)
+        .map(v => parseFloat(((v / datos.totalEmisiones) * 100).toFixed(1)));
 
     new Chart(document.getElementById('graficoGEI'), {
         type: 'bar',
         data: {
-            labels: [
-                'CH₄ biogénico',
-                'N₂O',
-                'CO₂ fósil',
-                'Otros GEI'
-            ],
+            labels: ['CH₄ biogénico','N₂O','CO₂ fósil','Otros GEI'],
             datasets: [{
                 data: porcentajeGEI,
-                backgroundColor: [
-                    '#E63946',
-                    '#457B9D',
-                    '#F4A261',
-                    '#6C757D'
-                ]
+                backgroundColor: ['#E63946','#457B9D','#F4A261','#6C757D']
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    title: {
-                        display: true,
-                        text: '% GEI del total'
-                    }
-                }
-            }
+            scales: { y: { beginAtZero: true, max: 100 } }
         }
     });
 
-// =========================================================
-// 🔹 TABLA DINÁMICA COMPLETA
-// =========================================================
+    // =========================================================
+    // 🔹 TABLA DINÁMICA
+    // =========================================================
 
-const tabla = document.getElementById("tablaEmisiones");
+    const tabla = document.getElementById("tablaEmisiones");
 
-function formatoPorcentaje(valor) {
-    return valor.toFixed(1).replace(".", ",") + "%";
-}
+    function formatoPorcentaje(v){
+        return v.toFixed(1).replace(".", ",") + "%";
+    }
 
-// 🔹 Nombres visibles
-const nombres = {
-    fermentacion: "Fermentación entérica",
-    estiercolPastura: "Estiércol en pasturas",
-    gestionEstiercol: "Gestión del Estiércol",
-    residuosCultivos: "Residuos de cultivos",
-    fertilizantes: "Aplicación de fertilizantes",
-    combustible: "Combustibles",
+    const nombres = {
+        fermentacion:"Fermentación entérica",
+        estiercolPastura:"Estiércol en pasturas",
+        gestionEstiercol:"Gestión del Estiércol",
+        residuosCultivos:"Residuos de cultivos",
+        fertilizantes:"Aplicación de fertilizantes",
+        combustible:"Combustibles",
+        limpieza:"Limpieza y mantenimiento",
+        trasladoAnimales:"Traslado de animales",
+        compraAlimentos:"Compra de alimentos",
+        energiaElectrica:"Energía eléctrica",
+        produccionFertilizantes:"Producción de fertilizantes",
+        transporteInsumos:"Transporte de insumos",
+        otrosInsumos:"Otros insumos"
+    };
 
-    limpieza: "Limpieza y mantenimiento",
-    trasladoAnimales: "Traslado de animales",
-    compraAlimentos: "Compra de alimentos",
-    energiaElectrica: "Energía eléctrica",
-    produccionFertilizantes: "Producción de fertilizantes",
-    transporteInsumos: "Transporte de insumos",
-    otrosInsumos: "Otros insumos"
-};
+    let html = "";
 
-let html = "";
+    html += `<tr><td class="titulo" colspan="2">Emisiones Directas</td></tr>`;
 
-// ================= DIRECTAS =================
+    let totalDirectas = 0;
 
-html += `<tr><td class="titulo" colspan="2">Emisiones Directas</td></tr>`;
-
-let totalDirectas = 0;
-
-directasKeys.forEach(key => {
-    const porcentaje = (datos.fuentes[key] / totalFuentes) * 100;
-    totalDirectas += porcentaje;
+    directasKeys.forEach(k=>{
+        const p = (datos.fuentes[k]/totalFuentes)*100;
+        totalDirectas += p;
+        html += `
+        <tr>
+            <td>${nombres[k]}</td>
+            <td class="valor">${formatoPorcentaje(p)}</td>
+        </tr>`;
+    });
 
     html += `
+    <tr>
+        <td><strong>Total Directas</strong></td>
+        <td class="valor"><strong>${formatoPorcentaje(totalDirectas)}</strong></td>
+    </tr>`;
+
+    html += `<tr><td class="titulo" colspan="2">Emisiones Indirectas</td></tr>`;
+
+    let totalIndirectas = 0;
+
+    indirectasKeys.forEach(k=>{
+        const p = (datos.fuentes[k]/totalFuentes)*100;
+        totalIndirectas += p;
+        html += `
         <tr>
-            <td>${nombres[key]}</td>
-            <td class="valor">${formatoPorcentaje(porcentaje)}</td>
-        </tr>
-    `;
-});
-
-html += `
-<tr>
-    <td class="valor"><strong>Total Directas</strong></td>
-    <td class="valor"><strong>${formatoPorcentaje(totalDirectas)}</strong></td>
-</tr>
-`;
-
-// ================= INDIRECTAS =================
-
-html += `<tr><td class="titulo" colspan="2">Emisiones Indirectas</td></tr>`;
-
-let totalIndirectas = 0;
-
-indirectasKeys.forEach(key => {
-    const porcentaje = (datos.fuentes[key] / totalFuentes) * 100;
-    totalIndirectas += porcentaje;
+            <td>${nombres[k]}</td>
+            <td class="valor">${formatoPorcentaje(p)}</td>
+        </tr>`;
+    });
 
     html += `
-        <tr>
-            <td>${nombres[key]}</td>
-            <td class="valor">${formatoPorcentaje(porcentaje)}</td>
-        </tr>
+    <tr>
+        <td><strong>Total Indirectas</strong></td>
+        <td class="valor"><strong>${formatoPorcentaje(totalIndirectas)}</strong></td>
+    </tr>`;
+
+    tabla.innerHTML = html;
+
+    // =========================================================
+    // 🔹 TEXTO AUTOMÁTICO (TOP 3 REAL)
+    // =========================================================
+
+    const contenedorTexto = document.getElementById("textoResultados");
+
+    const fuentesOrdenadas = Object.entries(datos.fuentes)
+        .sort((a,b)=> b[1]-a[1]);
+
+    const top1 = fuentesOrdenadas[0][0];
+    const top2 = fuentesOrdenadas[1][0];
+    const top3 = fuentesOrdenadas[2][0];
+
+    const porcentaje1 = ((datos.fuentes[top1]/totalFuentes)*100).toFixed(1).replace(".",",");
+    const porcentaje2 = ((datos.fuentes[top2]/totalFuentes)*100).toFixed(1).replace(".",",");
+    const porcentaje3 = ((datos.fuentes[top3]/totalFuentes)*100).toFixed(1).replace(".",",");
+
+    const nombresRedaccion = {
+        fermentacion:"fermentación entérica",
+        estiercolPastura:"estiércol en pasturas",
+        gestionEstiercol:"gestión del estiércol",
+        residuosCultivos:"residuos de cultivos",
+        fertilizantes:"aplicación de fertilizantes",
+        combustible:"combustión de combustibles",
+        limpieza:"limpieza y mantenimiento",
+        trasladoAnimales:"traslado de animales",
+        compraAlimentos:"compra de alimentos",
+        energiaElectrica:"energía eléctrica",
+        produccionFertilizantes:"producción de fertilizantes",
+        transporteInsumos:"transporte de insumos",
+        otrosInsumos:"otros insumos"
+    };
+
+    const geiPrincipal = Object.keys(datos.gei)
+        .reduce((a,b)=> datos.gei[a]>datos.gei[b]?a:b);
+
+    const nombresGEI = {
+        metanoBiogenico:"metano biogénico (CH₄)",
+        n2o:"óxido nitroso (N₂O)",
+        co2Fosil:"dióxido de carbono fósil (CO₂)",
+        otros:"otros gases"
+    };
+
+    const porcentajeGEIPrincipal =
+        ((datos.gei[geiPrincipal]/datos.totalEmisiones)*100)
+        .toFixed(1).replace(".",",");
+
+    const textoFinal = `
+    <p>
+    La intensidad de emisiones fue de <strong>${datos.intensidad.toFixed(2).replace(".",",")} kg CO₂e/kg leche cruda corregida en % de grasa y proteína(FPCM)</strong> para el período analizado (${datos.anio}).
+    </p>
+
+     <p> El <strong>${datos.directas.toFixed(1).replace(".", ",")}%</strong> de las emisiones corresponden a fuentes directas dentro del establecimiento,
+    mientras que el <strong>${datos.indirectas.toFixed(1).replace(".", ",")}%</strong> restante proviene de emisiones indirectas asociadas a insumos y energía.
+    </p>
+
+    <p>
+    La fuente mas representativa fue la <strong>${nombresRedaccion[top1]} (${porcentaje1}%)</strong>,
+    seguida por <strong>${nombresRedaccion[top2]} (${porcentaje2}%)</strong>
+    y <strong>${nombresRedaccion[top3]} (${porcentaje3}%)</strong>.
+    </p>
+
+    <p>
+    El gas predominante fue el <strong>${nombresGEI[geiPrincipal]}</strong>,
+    representando el <strong>${porcentajeGEIPrincipal}%</strong> del total.
+    </p>
     `;
-});
 
-html += `
-<tr>
-    <td class="valor"><strong>Total Indirectas</strong></td>
-    <td class="valor"><strong>${formatoPorcentaje(totalIndirectas)}</strong></td>
-</tr>
-`;
+    contenedorTexto.innerHTML = textoFinal;
 
-tabla.innerHTML = html;
-// =========================================================
-// 🔹 TEXTO AUTOMÁTICO DE RESULTADOS
-// =========================================================
-
-const contenedorTexto = document.getElementById("textoResultados");
-
-// 🔹 Determinar principal fuente
-const fuentePrincipalKey = Object.keys(datos.fuentes)
-    .reduce((a, b) =>
-        datos.fuentes[a] > datos.fuentes[b] ? a : b
-    );
-
-const nombresFuentes = {
-    fermentacion: "fermentación entérica",
-    estiercolPastura: "estiércol en pasturas",
-    gestionEstiercol: "gestión del estiércol",
-    residuosCultivos: "residuos de cultivos",
-    fertilizantes: "aplicación de fertilizantes",
-    combustible: "combustión de combustibles",
-    limpieza: "limpieza y mantenimiento",
-    trasladoAnimales: "traslado de animales",
-    compraAlimentos: "compra de alimentos",
-    energiaElectrica: "energía eléctrica",
-    produccionFertilizantes: "producción de fertilizantes",
-    transporteInsumos: "transporte de insumos",
-    otrosInsumos: "otros insumos"
-};
-
-const porcentajeFuentePrincipal = (
-    (datos.fuentes[fuentePrincipalKey] / totalFuentes) * 100
-).toFixed(1).replace(".", ",");
-
-// 🔹 Determinar GEI dominante
-const geiValores = datos.gei;
-
-const geiPrincipalKey = Object.keys(geiValores)
-    .reduce((a, b) =>
-        geiValores[a] > geiValores[b] ? a : b
-    );
-
-const nombresGEI = {
-    metanoBiogenico: "metano biogénico (CH₄)",
-    n2o: "óxido nitroso (N₂O)",
-    co2Fosil: "dióxido de carbono fósil (CO₂)",
-    otros: "otros gases"
-};
-
-const porcentajeGEIPrincipal = (
-    (geiValores[geiPrincipalKey] / datos.totalEmisiones) * 100
-).toFixed(1).replace(".", ",");
-
-// 🔹 Texto dinámico
-const textoFinal = `
-<p>
-        El resultado de las emisiones de GEI generadas a la salida del tambo
-        para el período analizado (${datos.anio}) es de <strong>${datos.intensidad.toFixed(2).replace(".", ",")} kg CO₂e / kg leche cruda
-        corregida en % de grasa y proteína (FPCM)</strong>.
-    </p>
-<p>
-        El secuestro de GEI es de <strong>${datos.secuestro.toFixed(2).replace(".", ",")} kg CO₂e / kg leche cruda FPCM</strong>,
-        lo que contribuye a mitigar parcialmente el impacto ambiental.
-    </p>
-  <p>
-        El <strong>${datos.directas.toFixed(1).replace(".", ",")}%</strong> corresponden a fuentes directas
-        dentro del tambo, mientras que el <strong>6% restante</strong> proviene
-        de emisiones indirectas asociadas a insumos y energía.
-    </p>
- <p>
-	La principal fuente de emisión fue la <strong>${nombresFuentes[fuentePrincipalKey]}</strong> resultante
-	 de la alimentación del ganado, con una participación del <strong>${porcentajeFuentePrincipal}%</strong> sobre el total de emisiones. 
-	Esta fuente se encuentra asociada principalmente a la generación de <strong>${nombresGEI[geiPrincipalKey]}</strong>, 
-	que representó el <strong>${porcentajeGEIPrincipal}%</strong> de los GEI totales del establecimiento. 
-	En términos relativos, le siguieron el estiércol en pasturas y el uso de combustibles 
-	como fuentes relevantes.
-    </p>
-`;
-
-contenedorTexto.innerHTML = textoFinal;
 });
 </script>
 

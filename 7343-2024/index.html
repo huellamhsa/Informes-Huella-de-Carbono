@@ -1,1 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Informe Huella de Carbono</title>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 40px;
+    background-color: #f4f6f5;
+    color: #1f2a24;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #1b5e20;
+}
+
+.logo-header img { height: 150px; }
+
+h1 { color: #1b5e20; margin-bottom: 5px; font-weight: 600; }
+
+.subtitulo { margin: 0; font-size: 14px; color: #4f6359; }
+
+/* CARDS */
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    border: 1px solid #e5e7e6;
+    margin-bottom: 10px;
+}
+
+.card p {
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.card h3 {
+    text-align: center;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.card h2, .card h3 {
+    margin-top: 0;
+    color: #1b5e20;
+    font-weight: 600;
+}
+
+/* KPI */
+.resultado-principal {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.kpi-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #5c6f66;
+    margin-bottom: 10px;
+}
+
+.recuadro-huella {
+    display: inline-block;
+    border: 1px solid #dcdede;
+    background-color: #eaf3ed;
+    padding: 20px 45px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.resultado-principal h2 {
+    font-size: 50px;
+    color: #145a32;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* GRID */
+.grid {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 40px;
+}
+
+/* GRÁFICOS */
+.chart-pie {
+    width: 500px;
+    height: 420px;
+    position: relative;
+}
+
+.chart-bar {
+    width: 500px;
+    height: 220px;
+    position: relative;
+}
+
+/* TABLA */
+.tabla-emisiones {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    font-size: 13px;
+}
+
+.tabla-emisiones td {
+    padding: 6px 4px;
+    border-bottom: 1px solid #eee;
+}
+
+.tabla-emisiones .titulo {
+    font-weight: 600;
+    padding-top: 12px;
+    border-bottom: 2px solid #1b5e20;
+}
+
+.tabla-emisiones .valor {
+    text-align: right;
+    font-weight: 600;
+}
+
+/* FOOTER */
+.footer {
+    margin-top: 50px;
+    font-size: 12px;
+    color: #6b7d75;
+    text-align: center;
+}
+
+/* RESPONSIVE */
+.card-complementaria {
+    height: 270px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div>
+        <h1>Informe de Huella de Carbono</h1>
+        <p class="subtitulo">
+            <strong>Establecimiento:</strong> <span id="nombreEstablecimiento"></span><br>
+            <strong>Año analizado:</strong> <span id="anioEstudio"></span>
+        </p>
+    </div>
+    <div class="logo-header">
+        <img src="logo.png" alt="Logo institucional">
+    </div>
+</div>
+
+<!-- INTRODUCCIÓN -->
+<div class="card">
+    <h2>Introducción</h2>
+    <p>
+        La presente devolución se realizó con la <strong>Herramienta de Cálculo
+        de Balance de Carbono para el sector Lácteo (PACN - Calculador Lácteos
+        V.1.3, 2024)</strong>, desarrollada mediante la participación voluntaria
+        de diferentes productores, asociaciones, empresas y cámaras sectoriales argentinas.
+    </p>
+    <p>
+        El Programa Argentino de Carbono Neutro (PACN) tiene como objetivo
+        identificar factores de emisión y perfiles ambientales locales para
+        obtener cálculos precisos de la huella de carbono.
+    </p>
+    <p>
+        El pack de herramientas del sector lácteos del PACN se ofrece de manera
+        gratuita a los actores productivos interesados y se encuentra disponible en el portal
+        web del programa.
+    </p>
+</div>
+
+<!-- KPI -->
+<div class="resultado-principal">
+
+    <div class="kpi-label">Intensidad de emisión</div>
+
+    <div class="recuadro-huella">
+        <h2><span id="valorIntensidad"></span> kg CO₂e / kg FPCM</h2>
+    </div>
+
+    <div class="info-intensidad">
+        <p>Secuestro: <span id="valorSecuestro"></span> kg CO₂e / kg FPCM</p>
+        <p>Huella calculada a la salida del tambo</p>
+    </div>
+
+</div>
+
+<!-- GRID DE GRÁFICOS -->
+<div class="grid">
+
+    <!-- COLUMNA IZQUIERDA -->
+    <div>
+        <div class="card">
+            <h3>Distribución por Fuente (%)</h3>
+            <div class="chart-pie">
+                <canvas id="graficoFuentes"></canvas>
+            </div>
+        </div>
+
+        <div class="card card-complementaria">
+            <h3>Participación por tipo de GEI (%)</h3>
+            <div style="height:220px;">
+                <canvas id="graficoGEI"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLUMNA DERECHA -->
+    <div class="card">
+        <h3>Emisiones Directas e Indirectas (%)</h3>
+
+        <div class="chart-bar">
+            <canvas id="graficoDirectas"></canvas>
+        </div>
+
+        <!-- TABLA DETALLE -->
+       <table class="tabla-emisiones" id="tablaEmisiones"></table>
+            
+    </div> <!-- 🔹 CIERRE CARD DERECHA -->
+
+</div> <!-- 🔹 CIERRE GRID -->
+
+<!-- RESULTADOS COMPLETOS -->
+<div class="card">
+  <h2>Resultados del Establecimiento</h2>
+<div id="textoResultados"></div>
+</div>
+
+<div class="footer">
+Informe de uso exclusivo del establecimiento. Prohibida su reproducción sin autorización.
+</div>
+
+<script>
+// ===============================
+// BLOQUE EDITABLE POR ESTABLECIMIENTO
+// ===============================
+
+const datos = {
+    establecimiento: "Gonzalez Jorge Omar",
+    anio: 2024,
+    intensidad: 0.73,
+    secuestro: 0.0,
+    totalEmisiones: 1677841,75182841,
+
+    gei: {
+        metanoBiogenico: 927.478,
+        n2o: 315.390,
+        co2Fosil: 291.604,
+        otros: 148.026
+    },
+
+    directas: 65.8,
+    indirectas: 34.2,
+
+    fuentes: {
+        // 🔹 DIRECTAS
+        fermentacion: 893.488,
+        estiercolPastura: 84.625,
+        gestionEstiercol: 28.020,
+        residuosCultivos: 24.275,
+        fertilizantes: 30.939,
+        combustible: 43.390,
+
+        // 🔹 INDIRECTAS
+        limpieza: 334,
+        trasladoAnimales: 0,
+        compraAlimentos: 199.368,
+        energiaElectrica: 247.409,
+        produccionFertilizantes: 2.001,
+        transporteInsumos: 123.694,
+        otrosInsumos: 298
+    }
+};
+
+// ===============================
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    // 🔹 ENCABEZADO
+    document.getElementById("nombreEstablecimiento").innerText = datos.establecimiento;
+    document.getElementById("anioEstudio").innerText = datos.anio;
+
+    // 🔹 KPI
+    document.getElementById("valorIntensidad").innerText =
+        datos.intensidad.toFixed(2).replace(".", ",");
+
+    document.getElementById("valorSecuestro").innerText =
+        datos.secuestro.toFixed(2).replace(".", ",");
+
+    // =========================================================
+    // 🔹 CLAVES
+    // =========================================================
+
+    const directasKeys = [
+        "fermentacion","estiercolPastura","gestionEstiercol",
+        "residuosCultivos","fertilizantes","combustible"
+    ];
+
+    const indirectasKeys = [
+        "limpieza","trasladoAnimales","compraAlimentos",
+        "energiaElectrica","produccionFertilizantes",
+        "transporteInsumos","otrosInsumos"
+    ];
+
+    const totalFuentes = Object.values(datos.fuentes)
+        .reduce((acc, val) => acc + val, 0);
+
+    // =========================================================
+    // 🔹 GRÁFICO TORTA (INDIRECTAS AGRUPADAS)
+    // =========================================================
+
+    const valoresDirectas = directasKeys.map(k => datos.fuentes[k]);
+
+    const totalIndirectasAgrupadas = indirectasKeys
+        .reduce((acc, k) => acc + datos.fuentes[k], 0);
+
+    const datosTorta = [...valoresDirectas, totalIndirectasAgrupadas]
+        .map(v => parseFloat(((v / totalFuentes) * 100).toFixed(1)));
+
+    new Chart(document.getElementById('graficoFuentes'), {
+        type: 'pie',
+        data: {
+            labels: [
+                'Fermentación entérica',
+                'Estiércol en pasturas',
+                'Gestión del estiércol',
+                'Residuos de cultivos',
+                'Aplicación de fertilizantes',
+                'Combustibles',
+                'Emisiones indirectas'
+            ],
+            datasets: [{
+                data: datosTorta,
+                backgroundColor: [
+                    '#1b5e20','#2e7d32','#388e3c',
+                    '#43a047','#66bb6a','#81c784','#a5d6a7'
+                ]
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // =========================================================
+    // 🔹 DIRECTAS VS INDIRECTAS
+    // =========================================================
+
+    new Chart(document.getElementById('graficoDirectas'), {
+        type: 'bar',
+        data: {
+            labels: ['Participación sobre el total (%)'],
+            datasets: [
+                { label: 'Directas (%)', data: [datos.directas], backgroundColor: '#145a32' },
+                { label: 'Indirectas (%)', data: [datos.indirectas], backgroundColor: '#a9dfbf' }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: { stacked: true, max: 100, beginAtZero: true },
+                y: { stacked: true }
+            }
+        }
+    });
+
+    // =========================================================
+    // 🔹 GEI
+    // =========================================================
+
+    const porcentajeGEI = Object.values(datos.gei)
+        .map(v => parseFloat(((v / datos.totalEmisiones) * 100).toFixed(1)));
+
+    new Chart(document.getElementById('graficoGEI'), {
+        type: 'bar',
+        data: {
+            labels: ['CH₄ biogénico','N₂O','CO₂ fósil','Otros GEI'],
+            datasets: [{
+                data: porcentajeGEI,
+                backgroundColor: ['#E63946','#457B9D','#F4A261','#6C757D']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, max: 100 } }
+        }
+    });
+
+    // =========================================================
+    // 🔹 TABLA DINÁMICA
+    // =========================================================
+
+    const tabla = document.getElementById("tablaEmisiones");
+
+    function formatoPorcentaje(v){
+        return v.toFixed(1).replace(".", ",") + "%";
+    }
+
+    const nombres = {
+        fermentacion:"Fermentación entérica",
+        estiercolPastura:"Estiércol en pasturas",
+        gestionEstiercol:"Gestión del Estiércol",
+        residuosCultivos:"Residuos de cultivos",
+        fertilizantes:"Aplicación de fertilizantes",
+        combustible:"Combustibles",
+        limpieza:"Limpieza y mantenimiento",
+        trasladoAnimales:"Traslado de animales",
+        compraAlimentos:"Compra de alimentos",
+        energiaElectrica:"Energía eléctrica",
+        produccionFertilizantes:"Producción de fertilizantes",
+        transporteInsumos:"Transporte de insumos",
+        otrosInsumos:"Otros insumos"
+    };
+
+    let html = "";
+
+    html += `<tr><td class="titulo" colspan="2">Emisiones Directas</td></tr>`;
+
+    let totalDirectas = 0;
+
+    directasKeys.forEach(k=>{
+        const p = (datos.fuentes[k]/totalFuentes)*100;
+        totalDirectas += p;
+        html += `
+        <tr>
+            <td>${nombres[k]}</td>
+            <td class="valor">${formatoPorcentaje(p)}</td>
+        </tr>`;
+    });
+
+    html += `
+    <tr>
+        <td><strong>Total Directas</strong></td>
+        <td class="valor"><strong>${formatoPorcentaje(totalDirectas)}</strong></td>
+    </tr>`;
+
+    html += `<tr><td class="titulo" colspan="2">Emisiones Indirectas</td></tr>`;
+
+    let totalIndirectas = 0;
+
+    indirectasKeys.forEach(k=>{
+        const p = (datos.fuentes[k]/totalFuentes)*100;
+        totalIndirectas += p;
+        html += `
+        <tr>
+            <td>${nombres[k]}</td>
+            <td class="valor">${formatoPorcentaje(p)}</td>
+        </tr>`;
+    });
+
+    html += `
+    <tr>
+        <td><strong>Total Indirectas</strong></td>
+        <td class="valor"><strong>${formatoPorcentaje(totalIndirectas)}</strong></td>
+    </tr>`;
+
+    tabla.innerHTML = html;
+
+    // =========================================================
+    // 🔹 TEXTO AUTOMÁTICO (TOP 3 REAL)
+    // =========================================================
+
+    const contenedorTexto = document.getElementById("textoResultados");
+
+    const fuentesOrdenadas = Object.entries(datos.fuentes)
+        .sort((a,b)=> b[1]-a[1]);
+
+    const top1 = fuentesOrdenadas[0][0];
+    const top2 = fuentesOrdenadas[1][0];
+    const top3 = fuentesOrdenadas[2][0];
+
+    const porcentaje1 = ((datos.fuentes[top1]/totalFuentes)*100).toFixed(1).replace(".",",");
+    const porcentaje2 = ((datos.fuentes[top2]/totalFuentes)*100).toFixed(1).replace(".",",");
+    const porcentaje3 = ((datos.fuentes[top3]/totalFuentes)*100).toFixed(1).replace(".",",");
+
+    const nombresRedaccion = {
+        fermentacion:"fermentación entérica",
+        estiercolPastura:"estiércol en pasturas",
+        gestionEstiercol:"gestión del estiércol",
+        residuosCultivos:"residuos de cultivos",
+        fertilizantes:"aplicación de fertilizantes",
+        combustible:"combustión de combustibles",
+        limpieza:"limpieza y mantenimiento",
+        trasladoAnimales:"traslado de animales",
+        compraAlimentos:"compra de alimentos",
+        energiaElectrica:"energía eléctrica",
+        produccionFertilizantes:"producción de fertilizantes",
+        transporteInsumos:"transporte de insumos",
+        otrosInsumos:"otros insumos"
+    };
+
+    const geiPrincipal = Object.keys(datos.gei)
+        .reduce((a,b)=> datos.gei[a]>datos.gei[b]?a:b);
+
+    const nombresGEI = {
+        metanoBiogenico:"metano biogénico (CH₄)",
+        n2o:"óxido nitroso (N₂O)",
+        co2Fosil:"dióxido de carbono fósil (CO₂)",
+        otros:"otros gases"
+    };
+
+    const porcentajeGEIPrincipal =
+        ((datos.gei[geiPrincipal]/datos.totalEmisiones)*100)
+        .toFixed(1).replace(".",",");
+
+    const textoFinal = `
+    <p>
+    La intensidad de emisiones fue de <strong>${datos.intensidad.toFixed(2).replace(".",",")} kg CO₂e/kg leche cruda corregida en % de grasa y proteína(FPCM)</strong> para el período analizado (${datos.anio}).
+    </p>
+
+     <p> El <strong>${datos.directas.toFixed(1).replace(".", ",")}%</strong> de las emisiones corresponden a fuentes directas dentro del establecimiento,
+    mientras que el <strong>${datos.indirectas.toFixed(1).replace(".", ",")}%</strong> restante proviene de emisiones indirectas asociadas a insumos y energía.
+    </p>
+
+    <p>
+    La fuente mas representativa fue la <strong>${nombresRedaccion[top1]} (${porcentaje1}%)</strong>,
+    seguida por <strong>${nombresRedaccion[top2]} (${porcentaje2}%)</strong>
+    y <strong>${nombresRedaccion[top3]} (${porcentaje3}%)</strong>.
+    </p>
+
+    <p>
+    El gas predominante fue el <strong>${nombresGEI[geiPrincipal]}</strong>,
+    representando el <strong>${porcentajeGEIPrincipal}%</strong> del total.
+    </p>
+    `;
+
+    contenedorTexto.innerHTML = textoFinal;
+
+});
+</script>
+
+</body>
+</html>

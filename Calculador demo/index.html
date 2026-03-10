@@ -495,7 +495,7 @@
 <body>
 
 <header>
-  <div class="header-title">🐄 Huella de Carbono en Tambos<br><span style="font-weight:400;opacity:0.6">Calculadora Interactiva — Escuela Agrotécnica</span></div>
+  <div class="header-title">🐄 Huella de Carbono en Tambos<br><span style="font-weight:400;opacity:0.6">Calculadora Interactiva — Simulador para Escuelas Agrotécnicas</span></div>
   <div class="header-badge">🌱 Actividad práctica</div>
 </header>
 
@@ -519,35 +519,50 @@
   </div>
 
   <!-- EMISIONES -->
-  <h2 class="section-title">🔴 Fuentes de Emisión — <span style="font-weight:400;font-family:'DM Sans',sans-serif;text-transform:none;letter-spacing:0">valores anuales</span></h2>
+  <h2 class="section-title">🔴 Fuentes de Emisión — <span style="font-weight:400;font-family:'DM Sans',sans-serif;text-transform:none;letter-spacing:0">ingresar datos diarios · el sistema calcula el total anual</span></h2>
+
+  <!-- BLOQUE ANIMALES / DIAS -->
+  <div style="background:white;border-radius:10px;padding:1.4rem;box-shadow:0 2px 12px var(--sombra);border-left:4px solid var(--carbon);margin-bottom:1.4rem;">
+    <div style="font-family:'Space Mono',monospace;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris);margin-bottom:1rem;">🐄 Datos del rodeo</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;align-items:end;" id="rodeo-grid">
+      <div>
+        <div style="font-size:0.78rem;color:var(--gris);margin-bottom:0.3rem;">Cantidad de animales</div>
+        <input type="number" id="cant-animales" placeholder="0" min="0" step="1" oninput="actualizarDias()" style="width:100%;padding:0.5rem 0.7rem;border:2px solid #DDD;border-radius:6px;font-family:'Space Mono',monospace;font-size:1rem;background:var(--crema);">
+      </div>
+      <div>
+        <div style="font-size:0.78rem;color:var(--gris);margin-bottom:0.3rem;">Días en producción / año</div>
+        <input type="number" id="cant-dias" placeholder="365" min="1" max="365" step="1" value="365" oninput="actualizarDias()" style="width:100%;padding:0.5rem 0.7rem;border:2px solid #DDD;border-radius:6px;font-family:'Space Mono',monospace;font-size:1rem;background:var(--crema);">
+      </div>
+      <div style="background:#F0F4F1;border-radius:8px;padding:0.7rem 1rem;text-align:center;">
+        <div style="font-size:0.72rem;color:var(--gris);margin-bottom:0.2rem;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:0.05em;">Animales × Días</div>
+        <div style="font-family:'Space Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--carbon);" id="resumen-animal-dias">— animal·día/año</div>
+      </div>
+    </div>
+    <div style="font-size:0.78rem;color:var(--gris);margin-top:0.8rem;font-style:italic;">Los consumos de alimentación y estiércol se ingresan en kg MS/animal/día → el sistema multiplica por animales × días para obtener el total anual.</div>
+  </div>
+
   <div class="grid">
 
     <div class="card emision">
       <div class="card-title"><span class="card-title-icon">🌾</span> Alimentación</div>
 
       <div class="input-row">
-        <span class="input-label">Forraje alta calidad<div class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">DMS &gt; 70%</span></div></span>
-        <span class="input-unit">kg MS/año</span>
+        <span class="input-label">Alimento de Alta Digestibilidad<div class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">DMS &gt; 70%</span></div></span>
+        <span class="input-unit">kg MS/animal/día</span>
         <span class="input-factor">×0.35</span>
-        <input type="number" class="emision-input" data-factor="0.35" data-nombre="Forraje alta calidad" placeholder="0" min="0" step="1000">
+        <input type="number" class="emision-animal-dia" data-factor="0.35" data-nombre="Alimento Alta Digestibilidad" placeholder="0" min="0" step="0.5" oninput="recalcularEmisionesAnimal()">
       </div>
       <div class="input-row">
-        <span class="input-label">Forraje baja calidad<div class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">DMS &lt; 55%</span></div></span>
-        <span class="input-unit">kg MS/año</span>
+        <span class="input-label">Alimento de Baja Digestibilidad<div class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">DMS &lt; 55%</span></div></span>
+        <span class="input-unit">kg MS/animal/día</span>
         <span class="input-factor">×0.575</span>
-        <input type="number" class="emision-input" data-factor="0.575" data-nombre="Forraje baja calidad" placeholder="0" min="0" step="1000">
+        <input type="number" class="emision-animal-dia" data-factor="0.575" data-nombre="Alimento Baja Digestibilidad" placeholder="0" min="0" step="0.5" oninput="recalcularEmisionesAnimal()">
       </div>
       <div class="input-row">
         <span class="input-label">Balanceado</span>
-        <span class="input-unit">kg/año</span>
+        <span class="input-unit">kg/animal/día</span>
         <span class="input-factor">×0.7</span>
-        <input type="number" class="emision-input" data-factor="0.7" data-nombre="Balanceado" placeholder="0" min="0" step="500">
-      </div>
-      <div class="input-row">
-        <span class="input-label">Urea</span>
-        <span class="input-unit">kg/año</span>
-        <span class="input-factor">×3.65</span>
-        <input type="number" class="emision-input" data-factor="3.65" data-nombre="Urea" placeholder="0" min="0" step="50">
+        <input type="number" class="emision-animal-dia" data-factor="0.7" data-nombre="Balanceado" placeholder="0" min="0" step="0.5" oninput="recalcularEmisionesAnimal()">
       </div>
     </div>
 
@@ -556,15 +571,15 @@
 
       <div class="input-row">
         <span class="input-label">Estiércol (anaeróbico)<div class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">laguna, pozo</span></div></span>
-        <span class="input-unit">kg/año</span>
+        <span class="input-unit">kg/animal/día</span>
         <span class="input-factor">×0.075</span>
-        <input type="number" class="emision-input" data-factor="0.075" data-nombre="Estiércol anaeróbico" placeholder="0" min="0" step="1000">
+        <input type="number" class="emision-animal-dia" data-factor="0.075" data-nombre="Estiércol anaeróbico" placeholder="0" min="0" step="1" oninput="recalcularEmisionesAnimal()">
       </div>
       <div class="input-row">
         <span class="input-label">Estiércol (aeróbico)<div class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">compostaje, esparcido</span></div></span>
-        <span class="input-unit">kg/año</span>
+        <span class="input-unit">kg/animal/día</span>
         <span class="input-factor">×0.02</span>
-        <input type="number" class="emision-input" data-factor="0.02" data-nombre="Estiércol aeróbico" placeholder="0" min="0" step="1000">
+        <input type="number" class="emision-animal-dia" data-factor="0.02" data-nombre="Estiércol aeróbico" placeholder="0" min="0" step="1" oninput="recalcularEmisionesAnimal()">
       </div>
       <div class="input-row">
         <span class="input-label">Electricidad consumida</span>
@@ -580,32 +595,48 @@
       </div>
     </div>
 
+    <!-- FERTILIZACIÓN -->
+    <div class="card emision full-width">
+      <div class="card-title"><span class="card-title-icon">🧪</span> Fertilización nitrogenada</div>
+      <div class="input-row">
+        <span class="input-label">Dosis de urea aplicada</span>
+        <span class="input-unit">kg Urea/ha/año</span>
+        <input type="number" id="urea-dosis" placeholder="0" min="0" step="10" oninput="calcularUrea()" style="width:110px">
+      </div>
+      <div class="input-row">
+        <span class="input-label">Superficie fertilizada</span>
+        <span class="input-unit">hectáreas</span>
+        <input type="number" id="urea-ha" placeholder="0" min="0" step="1" oninput="calcularUrea()" style="width:110px">
+      </div>
+      <div class="input-row" style="border-bottom:none;background:#FEF8F0;border-radius:4px;padding:0.4rem 0.5rem;margin-top:0.3rem;">
+        <span class="input-label" style="font-weight:600;font-size:0.82rem;">Factor × 3,65 kg CO₂e/kg Urea → Emisión total:</span>
+        <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--naranja);font-weight:700;" id="urea-result">— kg CO₂e/año</span>
+      </div>
+      <input type="hidden" class="emision-input" id="emision-urea" data-factor="1" data-nombre="Urea (fertilización)" value="0">
+    </div>
+
   </div>
+
+  <!-- inputs ocultos para totales animal·día -->
+  <div id="emision-animales-container" style="display:none"></div>
 
   <!-- REMOCIONES -->
   <h2 class="section-title">🟢 Remociones (Capturas) — <span style="font-weight:400;font-family:'DM Sans',sans-serif;text-transform:none;letter-spacing:0">valores anuales</span></h2>
   <div class="grid">
 
     <div class="card remocion full-width">
-      <div class="card-title"><span class="card-title-icon">🌿</span> Pasturas y Cultivos Forrajeros</div>
+      <div class="card-title"><span class="card-title-icon">🌿</span> Pasturas perennes (Alfalfa y similares)</div>
 
-      <!-- Fórmula explicativa -->
-      <div style="background:#F0FAF3;border-radius:6px;padding:0.7rem 1rem;margin-bottom:1rem;font-size:0.82rem;color:var(--verde);line-height:1.5;">
-        <strong>Fórmula:</strong> Rendimiento (kg MS/ha/año) × Hectáreas (ha) × Factor de remoción (kg CO₂e/kg MS) = kg CO₂e capturados/año
-      </div>
-
-      <!-- Alfalfa / Pastura perenne -->
-      <div style="border:1.5px solid #C8ECD3;border-radius:8px;padding:1rem;margin-bottom:0.8rem;">
-        <div style="font-size:0.85rem;font-weight:600;color:var(--verde);margin-bottom:0.7rem;">🌱 Alfalfa / Pasturas perennes</div>
+      <div style="border:1.5px solid #C8ECD3;border-radius:8px;padding:1rem;">
         <div class="input-row">
           <span class="input-label">Rendimiento del cultivo</span>
           <span class="input-unit">kg MS/ha/año</span>
-          <input type="number" id="alfalfa-rend" placeholder="0" min="0" step="500" oninput="calcularRemocionPastura('alfalfa')" style="width:110px">
+          <input type="number" id="alfalfa-rend" placeholder="0" min="0" step="500" oninput="calcularRemocionPastura()" style="width:110px">
         </div>
         <div class="input-row">
           <span class="input-label">Superficie</span>
           <span class="input-unit">hectáreas</span>
-          <input type="number" id="alfalfa-ha" placeholder="0" min="0" step="1" oninput="calcularRemocionPastura('alfalfa')" style="width:110px">
+          <input type="number" id="alfalfa-ha" placeholder="0" min="0" step="1" oninput="calcularRemocionPastura()" style="width:110px">
         </div>
         <div class="input-row" style="border-bottom:none;background:#F5FFF8;border-radius:4px;padding:0.4rem 0.5rem;margin-top:0.3rem;">
           <span class="input-label" style="font-weight:600;font-size:0.82rem;">Factor × 0,11 kg CO₂e/kg MS → Remoción total:</span>
@@ -613,35 +644,11 @@
         </div>
       </div>
 
-      <!-- Verdeo / Cultivo anual -->
-      <div style="border:1.5px solid #C8ECD3;border-radius:8px;padding:1rem;">
-        <div style="font-size:0.85rem;font-weight:600;color:var(--verde);margin-bottom:0.7rem;">🌾 Verdeos / Cultivos anuales</div>
-        <div class="input-row">
-          <span class="input-label">Rendimiento del cultivo</span>
-          <span class="input-unit">kg MS/ha/año</span>
-          <input type="number" id="verdeo-rend" placeholder="0" min="0" step="500" oninput="calcularRemocionPastura('verdeo')" style="width:110px">
-        </div>
-        <div class="input-row">
-          <span class="input-label">Superficie</span>
-          <span class="input-unit">hectáreas</span>
-          <input type="number" id="verdeo-ha" placeholder="0" min="0" step="1" oninput="calcularRemocionPastura('verdeo')" style="width:110px">
-        </div>
-        <div class="input-row" style="border-bottom:none;background:#F5FFF8;border-radius:4px;padding:0.4rem 0.5rem;margin-top:0.3rem;">
-          <span class="input-label" style="font-weight:600;font-size:0.82rem;">Factor × 0,11 kg CO₂e/kg MS → Remoción total:</span>
-          <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--verde);font-weight:700;" id="verdeo-result">— kg CO₂e/año</span>
-        </div>
-      </div>
-
-      <!-- Input oculto para cálculo -->
-      <input type="hidden" class="remocion-input" id="remocion-pasturas" data-factor="1" data-nombre="Pasturas y Cultivos" value="0">
+      <input type="hidden" class="remocion-input" id="remocion-pasturas" data-factor="1" data-nombre="Pasturas (Alfalfa)" value="0">
     </div>
 
     <div class="card remocion full-width">
       <div class="card-title"><span class="card-title-icon">🌳</span> Forestación (Montes y Cortinas)</div>
-
-      <div style="background:#F0FAF3;border-radius:6px;padding:0.7rem 1rem;margin-bottom:1rem;font-size:0.82rem;color:var(--verde);line-height:1.5;">
-        <strong>Factor:</strong> 1 árbol (eucalipto) = −1 a −5 kg CO₂e/año → se usa promedio <strong>−3 kg CO₂e/árbol/año</strong>
-      </div>
 
       <div class="input-row">
         <span class="input-label">Cantidad de árboles (eucalipto u otros)</span>
@@ -714,39 +721,63 @@
 
 <footer>
   Factores de emisión basados en: Manual de Metodología de Cálculo de Balance de Carbono para el sector Lácteo (2024) / OMM (2026)<br>
-  Calculadora educativa — Escuela Agrotécnica · Huella de Carbono en Tambos · Rodrigo Leoz Barcala
+  Calculadora educativa — Simulador para Escuelas Agrotécnicas · Huella de Carbono en Tambos · Rodrigo Leoz Barcala
 </footer>
 
 <script>
-// Calcula remoción de pasturas en tiempo real y actualiza el input oculto
-function calcularRemocionPastura(tipo) {
-  const rend = parseFloat(document.getElementById(tipo + '-rend').value) || 0;
-  const ha   = parseFloat(document.getElementById(tipo + '-ha').value)   || 0;
-  const factor = 0.11; // kg CO₂e / kg MS
-  const total = rend * ha * factor;
-
-  document.getElementById(tipo + '-result').textContent =
-    total > 0 ? total.toLocaleString('es-AR', {maximumFractionDigits:1}) + ' kg CO₂e/año' : '— kg CO₂e/año';
-
-  // Suma alfalfa + verdeo y vuelca en el input oculto
-  const alfalfaRend = parseFloat(document.getElementById('alfalfa-rend').value) || 0;
-  const alfalfaHa   = parseFloat(document.getElementById('alfalfa-ha').value)   || 0;
-  const verdeoRend  = parseFloat(document.getElementById('verdeo-rend').value)  || 0;
-  const verdeoHa    = parseFloat(document.getElementById('verdeo-ha').value)    || 0;
-  const totalPasturas = (alfalfaRend * alfalfaHa + verdeoRend * verdeoHa) * factor;
-  document.getElementById('remocion-pasturas').value = totalPasturas;
+// ── RODEO: actualiza el resumen animales × días ──
+function actualizarDias() {
+  const anim = parseFloat(document.getElementById('cant-animales').value) || 0;
+  const dias = parseFloat(document.getElementById('cant-dias').value) || 365;
+  const res = document.getElementById('resumen-animal-dias');
+  res.textContent = anim > 0 ? (anim * dias).toLocaleString('es-AR') + ' animal·día/año' : '— animal·día/año';
+  recalcularEmisionesAnimal();
 }
 
-function calcular() {
-  const litros = parseFloat(document.getElementById('litros-leche').value) || 0;
+// ── ALIMENTACIÓN / ESTIÉRCOL: convierte por animal·día → anual ──
+function recalcularEmisionesAnimal() {
+  const anim = parseFloat(document.getElementById('cant-animales').value) || 0;
+  const dias = parseFloat(document.getElementById('cant-dias').value) || 365;
+  // Los inputs .emision-animal-dia guardan sus totales anuales en data-anual
+  document.querySelectorAll('.emision-animal-dia').forEach(input => {
+    const val = parseFloat(input.value) || 0;
+    input.dataset.anual = val * anim * dias;
+  });
+}
 
+// ── UREA: dosis × ha × factor ──
+function calcularUrea() {
+  const dosis = parseFloat(document.getElementById('urea-dosis').value) || 0;
+  const ha    = parseFloat(document.getElementById('urea-ha').value)    || 0;
+  const total = dosis * ha * 3.65;
+  document.getElementById('urea-result').textContent =
+    total > 0 ? total.toLocaleString('es-AR', {maximumFractionDigits:1}) + ' kg CO₂e/año' : '— kg CO₂e/año';
+  document.getElementById('emision-urea').value = total;
+}
+
+// ── PASTURAS: rendimiento × ha × factor ──
+function calcularRemocionPastura() {
+  const rend = parseFloat(document.getElementById('alfalfa-rend').value) || 0;
+  const ha   = parseFloat(document.getElementById('alfalfa-ha').value)   || 0;
+  const total = rend * ha * 0.11;
+  document.getElementById('alfalfa-result').textContent =
+    total > 0 ? total.toLocaleString('es-AR', {maximumFractionDigits:1}) + ' kg CO₂e/año' : '— kg CO₂e/año';
+  document.getElementById('remocion-pasturas').value = total;
+}
+
+// ── CALCULAR HUELLA ──
+function calcular() {
+  // Asegurar que los animales·día estén actualizados
+  recalcularEmisionesAnimal();
+
+  const litros = parseFloat(document.getElementById('litros-leche').value) || 0;
   let totalEmision = 0;
   let totalRemocion = 0;
   let desglose = [];
 
-  // EMISIONES
-  document.querySelectorAll('.emision-input').forEach(input => {
-    const val = parseFloat(input.value) || 0;
+  // Emisiones: animal·día (alimentación y estiércol)
+  document.querySelectorAll('.emision-animal-dia').forEach(input => {
+    const val    = parseFloat(input.dataset.anual) || 0;
     const factor = parseFloat(input.dataset.factor);
     const nombre = input.dataset.nombre;
     if (val > 0) {
@@ -756,9 +787,21 @@ function calcular() {
     }
   });
 
-  // REMOCIONES (todos los factores ya son anuales)
+  // Emisiones: anuales directas (electricidad, gasoil, urea calculada)
+  document.querySelectorAll('.emision-input').forEach(input => {
+    const val    = parseFloat(input.value) || 0;
+    const factor = parseFloat(input.dataset.factor);
+    const nombre = input.dataset.nombre;
+    if (val > 0) {
+      const co2 = val * factor;
+      totalEmision += co2;
+      desglose.push({ nombre, co2, tipo: 'emision' });
+    }
+  });
+
+  // Remociones
   document.querySelectorAll('.remocion-input').forEach(input => {
-    const val = parseFloat(input.value) || 0;
+    const val    = parseFloat(input.value) || 0;
     const factor = parseFloat(input.dataset.factor);
     const nombre = input.dataset.nombre;
     if (val > 0) {
@@ -769,20 +812,18 @@ function calcular() {
   });
 
   const neta = totalEmision - totalRemocion;
+  const fmt  = n => n.toLocaleString('es-AR', {maximumFractionDigits:0});
 
-  // Formateo con separador de miles
-  const fmt = n => n.toLocaleString('es-AR', {maximumFractionDigits:0});
-  document.getElementById('res-emisiones').textContent = fmt(totalEmision);
+  document.getElementById('res-emisiones').textContent  = fmt(totalEmision);
   document.getElementById('res-remociones').textContent = fmt(totalRemocion);
-  document.getElementById('res-neta').textContent = fmt(neta);
+  document.getElementById('res-neta').textContent       = fmt(neta);
 
   // Intensidad por litro
   const intensidadEl = document.getElementById('res-intensidad');
-  const barraEl = document.getElementById('barra-intensidad');
+  const barraEl      = document.getElementById('barra-intensidad');
   if (litros > 0) {
     const intensidad = neta / litros;
     intensidadEl.textContent = intensidad.toFixed(3);
-
     const pct = Math.min((intensidad / 2.5) * 100, 100);
     barraEl.style.width = Math.max(pct, 0) + '%';
 
@@ -798,8 +839,8 @@ function calcular() {
     }
 
     const semaforo = document.getElementById('semaforo-msg');
-    const texto = document.getElementById('semaforo-texto');
     semaforo.className = 'semaforo';
+    const texto = document.getElementById('semaforo-texto');
     if (intensidad < 0.8) {
       semaforo.classList.add('bueno');
       texto.innerHTML = `<strong>¡Excelente!</strong> Con ${intensidad.toFixed(3)} kg CO₂e/litro, este tambo está por debajo del promedio nacional (~1 kg CO₂e/L). Las prácticas de manejo son eficientes.`;
@@ -813,8 +854,7 @@ function calcular() {
   } else {
     intensidadEl.textContent = '—';
     barraEl.style.width = '0%';
-    const semaforo = document.getElementById('semaforo-msg');
-    semaforo.className = 'semaforo regular';
+    document.getElementById('semaforo-msg').className = 'semaforo regular';
     document.getElementById('semaforo-texto').innerHTML = 'Ingresá la producción anual de leche para calcular la intensidad de emisiones por litro.';
   }
 
@@ -823,37 +863,34 @@ function calcular() {
   lista.innerHTML = '';
   const maxVal = Math.max(...desglose.map(d => d.co2), 1);
   desglose.sort((a, b) => b.co2 - a.co2);
-
   desglose.forEach(item => {
-    const pct = (item.co2 / maxVal * 100).toFixed(1);
+    const pct   = (item.co2 / maxVal * 100).toFixed(1);
     const color = item.tipo === 'emision' ? 'var(--naranja)' : 'var(--verde-claro)';
     const signo = item.tipo === 'remocion' ? '-' : '+';
     lista.innerHTML += `
       <div class="desglose-item">
         <span class="desglose-nombre">${item.nombre}</span>
-        <div class="desglose-barra">
-          <div class="desglose-fill" style="width:${pct}%; background:${color}"></div>
-        </div>
+        <div class="desglose-barra"><div class="desglose-fill" style="width:${pct}%;background:${color}"></div></div>
         <span class="desglose-valor">${signo}${fmt(item.co2)} kg</span>
       </div>`;
   });
-
-  if (desglose.length === 0) {
+  if (desglose.length === 0)
     lista.innerHTML = '<div style="color:var(--gris);font-size:0.85rem;padding:0.5rem 0">No se ingresaron datos.</div>';
-  }
 
-  const resEl = document.getElementById('resultados');
-  resEl.classList.add('visible');
-  resEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('resultados').classList.add('visible');
+  document.getElementById('resultados').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// ── RESET ──
 function resetear() {
-  document.querySelectorAll('input[type="number"]').forEach(i => i.value = '');
+  document.querySelectorAll('input[type="number"]').forEach(i => { i.value = ''; delete i.dataset.anual; });
+  document.getElementById('cant-dias').value = 365;
   document.getElementById('remocion-pasturas').value = 0;
+  document.getElementById('emision-urea').value = 0;
   document.getElementById('alfalfa-result').textContent = '— kg CO₂e/año';
-  document.getElementById('verdeo-result').textContent  = '— kg CO₂e/año';
-  const res = document.getElementById('resultados');
-  res.classList.remove('visible');
+  document.getElementById('urea-result').textContent    = '— kg CO₂e/año';
+  document.getElementById('resumen-animal-dias').textContent = '— animal·día/año';
+  document.getElementById('resultados').classList.remove('visible');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>

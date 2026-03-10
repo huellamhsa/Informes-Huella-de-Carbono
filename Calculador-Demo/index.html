@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Huella de Carbono — Tambo (Anual)</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde: #2C6E3F;
+    --verde-claro: #4A9E62;
+    --verde-lima: #8BC34A;
+    --tierra: #8B5E3C;
+    --crema: #F7F3EC;
+    --blanco: #FAFAF8;
+    --carbon: #1A2E1E;
+    --gris: #5A6B5E;
+    --rojo: #C0392B;
+    --naranja: #E67E22;
+    --amarillo: #F1C40F;
+    --sombra: rgba(26,46,30,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--crema);
+    color: var(--carbon);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--carbon);
+    color: var(--crema);
+    padding: 1.2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .header-title {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(0.85rem, 2vw, 1rem);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.3;
+  }
+  .header-badge {
+    background: var(--verde-lima);
+    color: var(--carbon);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.3rem 0.7rem;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* INTRO STRIP */
+  .intro {
+    background: var(--verde);
+    color: white;
+    border-radius: 8px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+  .intro-icon { font-size: 2rem; flex-shrink: 0; }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.4rem;
+    margin-bottom: 1.8rem;
+  }
+  @media (max-width: 640px) {
+    .grid { grid-template-columns: 1fr; }
+    .full-width { grid-column: 1; }
+  }
+  .full-width { grid-column: 1 / -1; }
+
+  /* CARD */
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.4rem;
+    box-shadow: 0 2px 12px var(--sombra);
+    border-left: 4px solid var(--verde);
+  }
+  .card.emision { border-left-color: var(--naranja); }
+  .card.remocion { border-left-color: var(--verde-claro); }
+  .card.resultado { border-left-color: var(--tierra); }
+
+  .card-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gris);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card-title-icon { font-size: 1rem; }
+
+  /* INPUTS */
+  .input-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid #EEE;
+    gap: 0.5rem;
+  }
+  .input-row:last-child { border-bottom: none; }
+
+  .input-label {
+    font-size: 0.875rem;
+    color: var(--carbon);
+    flex: 1;
+    line-height: 1.3;
+  }
+  .input-unit {
+    font-size: 0.72rem;
+    color: var(--gris);
+    font-style: italic;
+    white-space: nowrap;
+    margin-right: 0.4rem;
+  }
+  .input-factor {
+    font-size: 0.68rem;
+    color: var(--verde-claro);
+    font-family: 'Space Mono', monospace;
+    white-space: nowrap;
+    margin-right: 0.5rem;
+  }
+
+  input[type="number"] {
+    width: 90px;
+    padding: 0.4rem 0.6rem;
+    border: 2px solid #DDD;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--carbon);
+    background: var(--crema);
+    text-align: right;
+    transition: border-color 0.2s;
+  }
+  input[type="number"]:focus {
+    outline: none;
+    border-color: var(--verde);
+    background: white;
+  }
+  input[type="number"].remocion-input:focus { border-color: var(--verde-claro); }
+  @media (max-width: 400px) {
+    input[type="number"] { width: 70px; }
+  }
+
+  /* LECHE INPUT */
+  .leche-section {
+    background: linear-gradient(135deg, var(--carbon) 0%, #2C4A30 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.8rem;
+    flex-wrap: wrap;
+  }
+  .leche-label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    opacity: 0.9;
+  }
+  .leche-label strong {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    font-weight: 400;
+    margin-bottom: 0.2rem;
+  }
+  .leche-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .leche-input-wrap input {
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.3);
+    color: white;
+    font-size: 1.2rem;
+    width: 110px;
+    padding: 0.5rem 0.7rem;
+  }
+  .leche-input-wrap input:focus { border-color: var(--verde-lima); background: rgba(255,255,255,0.2); }
+  .leche-input-wrap input::placeholder { color: rgba(255,255,255,0.4); }
+  .leche-unit { font-size: 0.85rem; opacity: 0.7; white-space: nowrap; }
+
+  /* CALCULAR BTN */
+  .btn-calcular {
+    background: var(--verde);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 1rem 2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.1s;
+    margin-bottom: 1.8rem;
+  }
+  .btn-calcular:hover { background: var(--verde-claro); transform: translateY(-1px); }
+  .btn-calcular:active { transform: translateY(0); }
+
+  /* RESULTADOS */
+  #resultados { display: none; }
+  #resultados.visible { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .resultado-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.4rem;
+  }
+  @media (max-width: 600px) {
+    .resultado-grid { grid-template-columns: 1fr; }
+  }
+
+  .resultado-card {
+    border-radius: 10px;
+    padding: 1.3rem;
+    text-align: center;
+  }
+  .resultado-card.total-emision { background: #FDF0E6; border: 2px solid var(--naranja); }
+  .resultado-card.total-remocion { background: #EAF7EE; border: 2px solid var(--verde-claro); }
+  .resultado-card.huella-neta { background: var(--carbon); color: white; border: 2px solid var(--carbon); }
+
+  .res-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 0.4rem;
+  }
+  .res-numero {
+    font-family: 'Space Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .res-numero.naranja { color: var(--naranja); }
+  .res-numero.verde { color: var(--verde); }
+  .res-numero.blanco { color: white; }
+  .res-unidad { font-size: 0.78rem; opacity: 0.65; }
+
+  /* INTENSIDAD */
+  .intensidad-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.4rem;
+    box-shadow: 0 2px 12px var(--sombra);
+    margin-bottom: 1.4rem;
+  }
+  .intensidad-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gris);
+    margin-bottom: 1rem;
+  }
+  .intensidad-valor {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+  }
+  .intensidad-numero {
+    font-family: 'Space Mono', monospace;
+    font-size: 2.8rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .intensidad-unidad { font-size: 0.85rem; color: var(--gris); }
+
+  .barra-container {
+    height: 18px;
+    background: #EEE;
+    border-radius: 9px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+  .barra-fill {
+    height: 100%;
+    border-radius: 9px;
+    transition: width 0.8s ease;
+    position: relative;
+  }
+  .barra-ref {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: var(--carbon);
+    opacity: 0.4;
+  }
+  .barra-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: var(--gris);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* SEMÁFORO */
+  .semaforo {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.9rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 1.4rem;
+  }
+  .semaforo.bueno { background: #EAF7EE; color: var(--verde); border: 1.5px solid var(--verde-claro); }
+  .semaforo.regular { background: #FEF9E7; color: #B7770D; border: 1.5px solid var(--amarillo); }
+  .semaforo.alto { background: #FDECEA; color: var(--rojo); border: 1.5px solid #E57373; }
+  .semaforo-icon { font-size: 1.4rem; }
+
+  /* DESGLOSE */
+  .desglose {
+    background: white;
+    border-radius: 10px;
+    padding: 1.4rem;
+    box-shadow: 0 2px 12px var(--sombra);
+  }
+  .desglose-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gris);
+    margin-bottom: 1rem;
+  }
+  .desglose-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #F0F0F0;
+    font-size: 0.875rem;
+  }
+  .desglose-item:last-child { border-bottom: none; }
+  .desglose-barra {
+    flex: 1;
+    height: 8px;
+    background: #EEE;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .desglose-fill { height: 100%; border-radius: 4px; }
+  .desglose-nombre { min-width: 120px; color: var(--carbon); }
+  .desglose-valor {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--gris);
+    min-width: 80px;
+    text-align: right;
+  }
+
+  /* FOOTER */
+  footer {
+    margin-top: 2.5rem;
+    padding: 1.2rem 2rem;
+    background: var(--carbon);
+    color: rgba(255,255,255,0.45);
+    font-size: 0.72rem;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  /* TOOLTIP */
+  .tooltip-wrap { position: relative; display: inline-block; }
+  .tooltip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px; height: 16px;
+    background: var(--gris);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.6rem;
+    font-weight: 700;
+    cursor: help;
+    margin-left: 4px;
+    flex-shrink: 0;
+  }
+  .tooltip-text {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--carbon);
+    color: white;
+    font-size: 0.72rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 10;
+    margin-bottom: 4px;
+    pointer-events: none;
+  }
+  .tooltip-wrap:hover .tooltip-text { display: block; }
+
+  /* RESET */
+  .btn-reset {
+    background: transparent;
+    border: 1.5px solid var(--gris);
+    color: var(--gris);
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover { border-color: var(--verde); color: var(--verde); }
+
+  h2.section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--gris);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  h2.section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #DDD;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">🐄 Huella de Carbono en Tambos<br><span style="font-weight:400;opacity:0.6">Calculadora Interactiva — Simulador para Escuelas Agrotécnicas</span></div>
+  <div class="header-badge">🌱 Actividad práctica</div>
+</header>
+
+<div class="container">
+
+  <div class="intro">
+    <div class="intro-icon">📋</div>
+    <div>Ingresá los datos anuales de tu tambo (real o ficticio) para calcular cuánto CO₂ equivalente emite y cuánto captura por año. Al final verás la huella neta y la intensidad por litro de leche producido.</div>
+  </div>
+
+  <!-- LECHE -->
+  <div class="leche-section">
+    <div class="leche-label">
+      <strong>Producción base anual</strong>
+      Litros de leche producidos por año
+    </div>
+    <div class="leche-input-wrap">
+      <input type="number" id="litros-leche" placeholder="0" min="0" step="1000">
+      <span class="leche-unit">litros/año</span>
+    </div>
+  </div>
+
+  <!-- EMISIONES -->
+  <h2 class="section-title">🔴 Fuentes de Emisión — <span style="font-weight:400;font-family:'DM Sans',sans-serif;text-transform:none;letter-spacing:0">ingresar datos diarios · el sistema calcula el total anual</span></h2>
+
+  <!-- BLOQUE ANIMALES / DIAS -->
+  <div style="background:white;border-radius:10px;padding:1.4rem;box-shadow:0 2px 12px var(--sombra);border-left:4px solid var(--carbon);margin-bottom:1.4rem;">
+    <div style="font-family:'Space Mono',monospace;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris);margin-bottom:1rem;">🐄 Datos del rodeo</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;align-items:end;" id="rodeo-grid">
+      <div>
+        <div style="font-size:0.78rem;color:var(--gris);margin-bottom:0.3rem;">Cantidad de animales</div>
+        <input type="number" id="cant-animales" placeholder="0" min="0" step="1" oninput="actualizarDias()" style="width:100%;padding:0.5rem 0.7rem;border:2px solid #DDD;border-radius:6px;font-family:'Space Mono',monospace;font-size:1rem;background:var(--crema);">
+      </div>
+      <div>
+        <div style="font-size:0.78rem;color:var(--gris);margin-bottom:0.3rem;">Días en producción / año</div>
+        <input type="number" id="cant-dias" placeholder="365" min="1" max="365" step="1" value="365" oninput="actualizarDias()" style="width:100%;padding:0.5rem 0.7rem;border:2px solid #DDD;border-radius:6px;font-family:'Space Mono',monospace;font-size:1rem;background:var(--crema);">
+      </div>
+      <div style="background:#F0F4F1;border-radius:8px;padding:0.7rem 1rem;text-align:center;">
+        <div style="font-size:0.72rem;color:var(--gris);margin-bottom:0.2rem;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:0.05em;">Animales × Días</div>
+        <div style="font-family:'Space Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--carbon);" id="resumen-animal-dias">— animal·día/año</div>
+      </div>
+    </div>
+    <div style="font-size:0.78rem;color:var(--gris);margin-top:0.8rem;font-style:italic;">Los consumos de alimentación y estiércol se ingresan en kg MS/animal/día → el sistema multiplica por animales × días para obtener el total anual.</div>
+  </div>
+
+  <div class="grid">
+
+    <div class="card emision">
+      <div class="card-title"><span class="card-title-icon">🌾</span> Alimentación</div>
+
+      <div class="input-row">
+        <span class="input-label">Alimento de Alta Digestibilidad<div class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">DMS &gt; 70%</span></div></span>
+        <span class="input-unit">kg MS/animal/día</span>
+        <span class="input-factor">×0.35</span>
+        <input type="number" class="emision-animal-dia" data-factor="0.35" data-nombre="Alimento Alta Digestibilidad" placeholder="0" min="0" step="0.5" oninput="recalcularEmisionesAnimal()">
+      </div>
+      <div class="input-row">
+        <span class="input-label">Alimento de Baja Digestibilidad<div class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">DMS &lt; 55%</span></div></span>
+        <span class="input-unit">kg MS/animal/día</span>
+        <span class="input-factor">×0.575</span>
+        <input type="number" class="emision-animal-dia" data-factor="0.575" data-nombre="Alimento Baja Digestibilidad" placeholder="0" min="0" step="0.5" oninput="recalcularEmisionesAnimal()">
+      </div>
+      <div class="input-row">
+        <span class="input-label">Balanceado</span>
+        <span class="input-unit">kg/animal/día</span>
+        <span class="input-factor">×0.7</span>
+        <input type="number" class="emision-animal-dia" data-factor="0.7" data-nombre="Balanceado" placeholder="0" min="0" step="0.5" oninput="recalcularEmisionesAnimal()">
+      </div>
+    </div>
+
+    <div class="card emision">
+      <div class="card-title"><span class="card-title-icon">💧</span> Estiércol y Energía</div>
+
+      <div class="input-row">
+        <span class="input-label">Estiércol (anaeróbico)<div class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">laguna, pozo</span></div></span>
+        <span class="input-unit">kg/animal/día</span>
+        <span class="input-factor">×0.075</span>
+        <input type="number" class="emision-animal-dia" data-factor="0.075" data-nombre="Estiércol anaeróbico" placeholder="0" min="0" step="1" oninput="recalcularEmisionesAnimal()">
+      </div>
+      <div class="input-row">
+        <span class="input-label">Estiércol (aeróbico)<div class="tooltip-wrap"><span class="tooltip-icon">?</span><span class="tooltip-text">compostaje, esparcido</span></div></span>
+        <span class="input-unit">kg/animal/día</span>
+        <span class="input-factor">×0.02</span>
+        <input type="number" class="emision-animal-dia" data-factor="0.02" data-nombre="Estiércol aeróbico" placeholder="0" min="0" step="1" oninput="recalcularEmisionesAnimal()">
+      </div>
+      <div class="input-row">
+        <span class="input-label">Electricidad consumida</span>
+        <span class="input-unit">kWh/año</span>
+        <span class="input-factor">×0.4</span>
+        <input type="number" class="emision-input" data-factor="0.4" data-nombre="Electricidad" placeholder="0" min="0" step="500">
+      </div>
+      <div class="input-row">
+        <span class="input-label">Gasoil consumido</span>
+        <span class="input-unit">litros/año</span>
+        <span class="input-factor">×2.9</span>
+        <input type="number" class="emision-input" data-factor="2.9" data-nombre="Gasoil" placeholder="0" min="0" step="100">
+      </div>
+    </div>
+
+    <!-- FERTILIZACIÓN -->
+    <div class="card emision full-width">
+      <div class="card-title"><span class="card-title-icon">🧪</span> Fertilización nitrogenada</div>
+      <div class="input-row">
+        <span class="input-label">Dosis de urea aplicada</span>
+        <span class="input-unit">kg Urea/ha/año</span>
+        <input type="number" id="urea-dosis" placeholder="0" min="0" step="10" oninput="calcularUrea()" style="width:110px">
+      </div>
+      <div class="input-row">
+        <span class="input-label">Superficie fertilizada</span>
+        <span class="input-unit">hectáreas</span>
+        <input type="number" id="urea-ha" placeholder="0" min="0" step="1" oninput="calcularUrea()" style="width:110px">
+      </div>
+      <div class="input-row" style="border-bottom:none;background:#FEF8F0;border-radius:4px;padding:0.4rem 0.5rem;margin-top:0.3rem;">
+        <span class="input-label" style="font-weight:600;font-size:0.82rem;">Factor × 3,65 kg CO₂e/kg Urea → Emisión total:</span>
+        <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--naranja);font-weight:700;" id="urea-result">— kg CO₂e/año</span>
+      </div>
+      <input type="hidden" class="emision-input" id="emision-urea" data-factor="1" data-nombre="Urea (fertilización)" value="0">
+    </div>
+
+  </div>
+
+  <!-- inputs ocultos para totales animal·día -->
+  <div id="emision-animales-container" style="display:none"></div>
+
+  <!-- REMOCIONES -->
+  <h2 class="section-title">🟢 Remociones (Capturas) — <span style="font-weight:400;font-family:'DM Sans',sans-serif;text-transform:none;letter-spacing:0">valores anuales</span></h2>
+  <div class="grid">
+
+    <div class="card remocion full-width">
+      <div class="card-title"><span class="card-title-icon">🌿</span> Pasturas perennes (Alfalfa y similares)</div>
+
+      <div style="border:1.5px solid #C8ECD3;border-radius:8px;padding:1rem;">
+        <div class="input-row">
+          <span class="input-label">Rendimiento del cultivo</span>
+          <span class="input-unit">kg MS/ha/año</span>
+          <input type="number" id="alfalfa-rend" placeholder="0" min="0" step="500" oninput="calcularRemocionPastura()" style="width:110px">
+        </div>
+        <div class="input-row">
+          <span class="input-label">Superficie</span>
+          <span class="input-unit">hectáreas</span>
+          <input type="number" id="alfalfa-ha" placeholder="0" min="0" step="1" oninput="calcularRemocionPastura()" style="width:110px">
+        </div>
+        <div class="input-row" style="border-bottom:none;background:#F5FFF8;border-radius:4px;padding:0.4rem 0.5rem;margin-top:0.3rem;">
+          <span class="input-label" style="font-weight:600;font-size:0.82rem;">Factor × 0,11 kg CO₂e/kg MS → Remoción total:</span>
+          <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--verde);font-weight:700;" id="alfalfa-result">— kg CO₂e/año</span>
+        </div>
+      </div>
+
+      <input type="hidden" class="remocion-input" id="remocion-pasturas" data-factor="1" data-nombre="Pasturas (Alfalfa)" value="0">
+    </div>
+
+    <div class="card remocion full-width">
+      <div class="card-title"><span class="card-title-icon">🌳</span> Forestación (Montes y Cortinas)</div>
+
+      <div class="input-row">
+        <span class="input-label">Cantidad de árboles (eucalipto u otros)</span>
+        <span class="input-unit">árboles</span>
+        <span class="input-factor">×3 kg CO₂e/año</span>
+        <input type="number" class="remocion-input" data-factor="3" data-nombre="Forestación (árboles)" placeholder="0" min="0" step="10" style="width:110px">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BTN -->
+  <button class="btn-calcular" onclick="calcular()">⚡ Calcular Huella de Carbono</button>
+
+  <!-- RESULTADOS -->
+  <div id="resultados">
+
+    <h2 class="section-title">📊 Resultados</h2>
+
+    <div class="resultado-grid">
+      <div class="resultado-card total-emision">
+        <div class="res-label">Total Emisiones</div>
+        <div class="res-numero naranja" id="res-emisiones">0</div>
+        <div class="res-unidad">kg CO₂e / año</div>
+      </div>
+      <div class="resultado-card total-remocion">
+        <div class="res-label">Total Remociones</div>
+        <div class="res-numero verde" id="res-remociones">0</div>
+        <div class="res-unidad">kg CO₂e / año</div>
+      </div>
+      <div class="resultado-card huella-neta">
+        <div class="res-label" style="color:rgba(255,255,255,0.55)">Huella Neta</div>
+        <div class="res-numero blanco" id="res-neta">0</div>
+        <div class="res-unidad">kg CO₂e / año</div>
+      </div>
+    </div>
+
+    <div class="intensidad-card">
+      <div class="intensidad-title">🥛 Intensidad de Emisiones — por litro de leche producido</div>
+      <div class="intensidad-valor">
+        <div class="intensidad-numero" id="res-intensidad" style="color:var(--carbon)">—</div>
+        <div class="intensidad-unidad">kg CO₂e / litro de leche</div>
+      </div>
+      <div class="barra-container">
+        <div class="barra-fill" id="barra-intensidad" style="width:0%; background: var(--verde);"></div>
+        <div class="barra-ref" style="left: 40%;" title="Referencia: 1 kg CO₂e/L"></div>
+      </div>
+      <div class="barra-labels">
+        <span>0</span>
+        <span>↑ Referencia: ~1 kg CO₂e/L (promedio nacional)</span>
+        <span>2.5+</span>
+      </div>
+    </div>
+
+    <div id="semaforo-msg" class="semaforo bueno">
+      <span class="semaforo-icon">🟢</span>
+      <span id="semaforo-texto"></span>
+    </div>
+
+    <div class="desglose">
+      <div class="desglose-title">📂 Desglose por fuente</div>
+      <div id="desglose-lista"></div>
+    </div>
+
+    <br>
+    <button class="btn-reset" onclick="resetear()">↺ Nueva simulación</button>
+  </div>
+
+</div>
+
+<footer>
+  Factores de emisión basados en: Manual de Metodología de Cálculo de Balance de Carbono para el sector Lácteo (2024) / OMM (2026)<br>
+  Calculadora educativa — Simulador para Escuelas Agrotécnicas · Huella de Carbono en Tambos · Rodrigo Leoz Barcala
+</footer>
+
+<script>
+// ── RODEO: actualiza el resumen animales × días ──
+function actualizarDias() {
+  const anim = parseFloat(document.getElementById('cant-animales').value) || 0;
+  const dias = parseFloat(document.getElementById('cant-dias').value) || 365;
+  const res = document.getElementById('resumen-animal-dias');
+  res.textContent = anim > 0 ? (anim * dias).toLocaleString('es-AR') + ' animal·día/año' : '— animal·día/año';
+  recalcularEmisionesAnimal();
+}
+
+// ── ALIMENTACIÓN / ESTIÉRCOL: convierte por animal·día → anual ──
+function recalcularEmisionesAnimal() {
+  const anim = parseFloat(document.getElementById('cant-animales').value) || 0;
+  const dias = parseFloat(document.getElementById('cant-dias').value) || 365;
+  // Los inputs .emision-animal-dia guardan sus totales anuales en data-anual
+  document.querySelectorAll('.emision-animal-dia').forEach(input => {
+    const val = parseFloat(input.value) || 0;
+    input.dataset.anual = val * anim * dias;
+  });
+}
+
+// ── UREA: dosis × ha × factor ──
+function calcularUrea() {
+  const dosis = parseFloat(document.getElementById('urea-dosis').value) || 0;
+  const ha    = parseFloat(document.getElementById('urea-ha').value)    || 0;
+  const total = dosis * ha * 3.65;
+  document.getElementById('urea-result').textContent =
+    total > 0 ? total.toLocaleString('es-AR', {maximumFractionDigits:1}) + ' kg CO₂e/año' : '— kg CO₂e/año';
+  document.getElementById('emision-urea').value = total;
+}
+
+// ── PASTURAS: rendimiento × ha × factor ──
+function calcularRemocionPastura() {
+  const rend = parseFloat(document.getElementById('alfalfa-rend').value) || 0;
+  const ha   = parseFloat(document.getElementById('alfalfa-ha').value)   || 0;
+  const total = rend * ha * 0.11;
+  document.getElementById('alfalfa-result').textContent =
+    total > 0 ? total.toLocaleString('es-AR', {maximumFractionDigits:1}) + ' kg CO₂e/año' : '— kg CO₂e/año';
+  document.getElementById('remocion-pasturas').value = total;
+}
+
+// ── CALCULAR HUELLA ──
+function calcular() {
+  // Asegurar que los animales·día estén actualizados
+  recalcularEmisionesAnimal();
+
+  const litros = parseFloat(document.getElementById('litros-leche').value) || 0;
+  let totalEmision = 0;
+  let totalRemocion = 0;
+  let desglose = [];
+
+  // Emisiones: animal·día (alimentación y estiércol)
+  document.querySelectorAll('.emision-animal-dia').forEach(input => {
+    const val    = parseFloat(input.dataset.anual) || 0;
+    const factor = parseFloat(input.dataset.factor);
+    const nombre = input.dataset.nombre;
+    if (val > 0) {
+      const co2 = val * factor;
+      totalEmision += co2;
+      desglose.push({ nombre, co2, tipo: 'emision' });
+    }
+  });
+
+  // Emisiones: anuales directas (electricidad, gasoil, urea calculada)
+  document.querySelectorAll('.emision-input').forEach(input => {
+    const val    = parseFloat(input.value) || 0;
+    const factor = parseFloat(input.dataset.factor);
+    const nombre = input.dataset.nombre;
+    if (val > 0) {
+      const co2 = val * factor;
+      totalEmision += co2;
+      desglose.push({ nombre, co2, tipo: 'emision' });
+    }
+  });
+
+  // Remociones
+  document.querySelectorAll('.remocion-input').forEach(input => {
+    const val    = parseFloat(input.value) || 0;
+    const factor = parseFloat(input.dataset.factor);
+    const nombre = input.dataset.nombre;
+    if (val > 0) {
+      const co2 = val * factor;
+      totalRemocion += co2;
+      desglose.push({ nombre, co2, tipo: 'remocion' });
+    }
+  });
+
+  const neta = totalEmision - totalRemocion;
+  const fmt  = n => n.toLocaleString('es-AR', {maximumFractionDigits:0});
+
+  document.getElementById('res-emisiones').textContent  = fmt(totalEmision);
+  document.getElementById('res-remociones').textContent = fmt(totalRemocion);
+  document.getElementById('res-neta').textContent       = fmt(neta);
+
+  // Intensidad por litro
+  const intensidadEl = document.getElementById('res-intensidad');
+  const barraEl      = document.getElementById('barra-intensidad');
+  if (litros > 0) {
+    const intensidad = neta / litros;
+    intensidadEl.textContent = intensidad.toFixed(3);
+    const pct = Math.min((intensidad / 2.5) * 100, 100);
+    barraEl.style.width = Math.max(pct, 0) + '%';
+
+    if (intensidad < 0.8) {
+      barraEl.style.background = 'var(--verde-claro)';
+      intensidadEl.style.color = 'var(--verde)';
+    } else if (intensidad < 1.3) {
+      barraEl.style.background = 'var(--amarillo)';
+      intensidadEl.style.color = '#B7770D';
+    } else {
+      barraEl.style.background = 'var(--rojo)';
+      intensidadEl.style.color = 'var(--rojo)';
+    }
+
+    const semaforo = document.getElementById('semaforo-msg');
+    semaforo.className = 'semaforo';
+    const texto = document.getElementById('semaforo-texto');
+    if (intensidad < 0.8) {
+      semaforo.classList.add('bueno');
+      texto.innerHTML = `<strong>¡Excelente!</strong> Con ${intensidad.toFixed(3)} kg CO₂e/litro, este tambo está por debajo del promedio nacional (~1 kg CO₂e/L). Las prácticas de manejo son eficientes.`;
+    } else if (intensidad < 1.3) {
+      semaforo.classList.add('regular');
+      texto.innerHTML = `<strong>Nivel medio.</strong> Con ${intensidad.toFixed(3)} kg CO₂e/litro, hay margen de mejora. Mejorar la calidad del forraje o aumentar producción puede reducir la intensidad.`;
+    } else {
+      semaforo.classList.add('alto');
+      texto.innerHTML = `<strong>Alta intensidad.</strong> Con ${intensidad.toFixed(3)} kg CO₂e/litro, el tambo está por encima del promedio. Revisar calidad de alimentación, manejo de estiércol y bienestar animal.`;
+    }
+  } else {
+    intensidadEl.textContent = '—';
+    barraEl.style.width = '0%';
+    document.getElementById('semaforo-msg').className = 'semaforo regular';
+    document.getElementById('semaforo-texto').innerHTML = 'Ingresá la producción anual de leche para calcular la intensidad de emisiones por litro.';
+  }
+
+  // Desglose
+  const lista = document.getElementById('desglose-lista');
+  lista.innerHTML = '';
+  const maxVal = Math.max(...desglose.map(d => d.co2), 1);
+  desglose.sort((a, b) => b.co2 - a.co2);
+  desglose.forEach(item => {
+    const pct   = (item.co2 / maxVal * 100).toFixed(1);
+    const color = item.tipo === 'emision' ? 'var(--naranja)' : 'var(--verde-claro)';
+    const signo = item.tipo === 'remocion' ? '-' : '+';
+    lista.innerHTML += `
+      <div class="desglose-item">
+        <span class="desglose-nombre">${item.nombre}</span>
+        <div class="desglose-barra"><div class="desglose-fill" style="width:${pct}%;background:${color}"></div></div>
+        <span class="desglose-valor">${signo}${fmt(item.co2)} kg</span>
+      </div>`;
+  });
+  if (desglose.length === 0)
+    lista.innerHTML = '<div style="color:var(--gris);font-size:0.85rem;padding:0.5rem 0">No se ingresaron datos.</div>';
+
+  document.getElementById('resultados').classList.add('visible');
+  document.getElementById('resultados').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── RESET ──
+function resetear() {
+  document.querySelectorAll('input[type="number"]').forEach(i => { i.value = ''; delete i.dataset.anual; });
+  document.getElementById('cant-dias').value = 365;
+  document.getElementById('remocion-pasturas').value = 0;
+  document.getElementById('emision-urea').value = 0;
+  document.getElementById('alfalfa-result').textContent = '— kg CO₂e/año';
+  document.getElementById('urea-result').textContent    = '— kg CO₂e/año';
+  document.getElementById('resumen-animal-dias').textContent = '— animal·día/año';
+  document.getElementById('resultados').classList.remove('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

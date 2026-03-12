@@ -276,7 +276,7 @@ const datos = {
     },
 
     fuentes: {
-       // 🔹 DIRECTAS
+                // 🔹 DIRECTAS
         fermentacion: 5316649.68061096,
         estiercolPastura: 281594.716457462,
         gestionEstiercol: 1989037.73140754,
@@ -399,13 +399,9 @@ document.addEventListener("DOMContentLoaded", function() {
             maintainAspectRatio: false,
             indexAxis: 'y',
             scales: {
-    y: {
-        min: 0,
-        max: 3,
-        ticks: { font: { size: 11 } }
-    },
-    x: { ticks: { font: { size: 11 } } }
-}
+                x: { stacked: true, max: 100, beginAtZero: true },
+                y: { stacked: true }
+            },
             plugins: {
                 legend: { labels: { font: { size: 11 }, boxWidth: 14 } }
             }

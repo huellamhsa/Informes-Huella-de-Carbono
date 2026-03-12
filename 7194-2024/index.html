@@ -399,9 +399,13 @@ document.addEventListener("DOMContentLoaded", function() {
             maintainAspectRatio: false,
             indexAxis: 'y',
             scales: {
-                x: { stacked: true, max: 100, beginAtZero: true },
-                y: { stacked: true }
-            },
+    y: {
+        min: 0,
+        max: 3,
+        ticks: { font: { size: 11 } }
+    },
+    x: { ticks: { font: { size: 11 } } }
+}
             plugins: {
                 legend: { labels: { font: { size: 11 }, boxWidth: 14 } }
             }

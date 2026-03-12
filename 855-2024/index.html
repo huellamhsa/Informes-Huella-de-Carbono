@@ -10,54 +10,50 @@
 <style>
 body {
     font-family: 'Inter', sans-serif;
-    margin: 40px;
+    margin: 12px 40px 40px 40px;
     background-color: #f4f6f5;
     color: #1f2a24;
 }
 
-/* HEADER */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 2px solid #1b5e20;
 }
 
 .logo-header img { height: 150px; }
-
 h1 { color: #1b5e20; margin-bottom: 5px; font-weight: 600; }
-
 .subtitulo { margin: 0; font-size: 14px; color: #4f6359; }
 
-/* CARDS */
 .card {
     background: white;
     border-radius: 8px;
-    padding: 25px;
+    padding: 20px;
     border: 1px solid #e5e7e6;
     margin-bottom: 10px;
+    box-sizing: border-box;
 }
 
-.card p {
-    font-size: 15px;
-    line-height: 1.6;
-}
+.card p { font-size: 15px; line-height: 1.6; }
 
 .card h3 {
     text-align: center;
-    font-weight: 500;
-    margin-bottom: 20px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    margin-top: 0;
+    color: #1b5e20;
+    font-size: 14px;
 }
 
-.card h2, .card h3 {
+.card h2 {
     margin-top: 0;
     color: #1b5e20;
     font-weight: 600;
 }
 
-/* KPI */
 .resultado-principal {
     text-align: center;
     margin: 40px 0;
@@ -87,63 +83,68 @@ h1 { color: #1b5e20; margin-bottom: 5px; font-weight: 600; }
     font-weight: 600;
 }
 
-/* GRID */
 .grid {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
     margin-top: 40px;
 }
 
-/* GRÁFICOS */
-.chart-pie {
-    width: 500px;
-    height: 420px;
-    position: relative;
+.grid .card {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
 }
 
-.chart-bar {
-    width: 500px;
-    height: 220px;
+.chart-container {
     position: relative;
+    min-height: 0;
 }
 
-/* TABLA */
-.tabla-emisiones {
+.cuadrante-torta .chart-container     { height: 360px; }
+.cuadrante-gei .chart-container       { height: 220px; }
+.cuadrante-directas .chart-container  { height: 100px; }
+.cuadrante-historico .chart-container { height: 220px; }
+
+/* TABLA HORIZONTAL: dos columnas lado a lado */
+.tabla-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+    margin-top: 10px;
+    font-size: 11px;
+}
+
+.tabla-col table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 25px;
-    font-size: 13px;
 }
 
-.tabla-emisiones td {
-    padding: 6px 4px;
+.tabla-col table td {
+    padding: 2.5px 4px;
     border-bottom: 1px solid #eee;
 }
 
-.tabla-emisiones .titulo {
+.tabla-col .titulo {
     font-weight: 600;
-    padding-top: 12px;
+    padding-top: 6px;
+    padding-bottom: 4px;
     border-bottom: 2px solid #1b5e20;
+    font-size: 11.5px;
+    color: #1b5e20;
 }
 
-.tabla-emisiones .valor {
+.tabla-col .valor {
     text-align: right;
     font-weight: 600;
+    white-space: nowrap;
 }
 
-/* FOOTER */
 .footer {
     margin-top: 50px;
     font-size: 12px;
     color: #6b7d75;
     text-align: center;
-}
-
-/* RESPONSIVE */
-.card-complementaria {
-    height: 270px;
 }
 </style>
 </head>
@@ -163,7 +164,6 @@ h1 { color: #1b5e20; margin-bottom: 5px; font-weight: 600; }
     </div>
 </div>
 
-<!-- INTRODUCCIÓN -->
 <div class="card">
     <h2>Introducción</h2>
     <p>
@@ -184,65 +184,69 @@ h1 { color: #1b5e20; margin-bottom: 5px; font-weight: 600; }
     </p>
 </div>
 
-<!-- KPI -->
 <div class="resultado-principal">
-
     <div class="kpi-label">Intensidad de emisión</div>
-
     <div class="recuadro-huella">
         <h2><span id="valorIntensidad"></span> kg CO₂e / kg FPCM</h2>
     </div>
-
     <div class="info-intensidad">
         <p>Secuestro: <span id="valorSecuestro"></span> kg CO₂e / kg FPCM</p>
         <p>Huella calculada a la salida del tambo</p>
     </div>
-
 </div>
 
-<!-- GRID DE GRÁFICOS -->
 <div class="grid">
 
-    <!-- COLUMNA IZQUIERDA -->
-    <div>
-        <div class="card">
-            <h3>Distribución por Fuente (%)</h3>
-            <div class="chart-pie">
-                <canvas id="graficoFuentes"></canvas>
-            </div>
+    <!-- ARRIBA IZQUIERDA: Torta -->
+    <div class="card cuadrante-torta">
+        <h3>Distribución por Fuente (%)</h3>
+        <div class="chart-container">
+            <canvas id="graficoFuentes"></canvas>
         </div>
+    </div>
 
-        <div class="card card-complementaria">
-            <h3>Participación por tipo de GEI (%)</h3>
-            <div style="height:220px;">
-                <canvas id="graficoGEI"></canvas>
+    <!-- ARRIBA DERECHA: Directas/Indirectas + tabla horizontal -->
+    <div class="card cuadrante-directas">
+        <h3>Emisiones Directas e Indirectas (%)</h3>
+        <div class="chart-container">
+            <canvas id="graficoDirectas"></canvas>
+        </div>
+        <!-- Tabla en dos columnas -->
+        <div class="tabla-wrapper">
+            <div class="tabla-col">
+                <table id="tablaDirectas"></table>
+            </div>
+            <div class="tabla-col">
+                <table id="tablaIndirectas"></table>
             </div>
         </div>
     </div>
 
-    <!-- COLUMNA DERECHA -->
-    <div class="card">
-        <h3>Emisiones Directas e Indirectas (%)</h3>
-
-        <div class="chart-bar">
-            <canvas id="graficoDirectas"></canvas>
+    <!-- ABAJO IZQUIERDA: GEI -->
+    <div class="card cuadrante-gei">
+        <h3>Participación por tipo de GEI (%)</h3>
+        <div class="chart-container">
+            <canvas id="graficoGEI"></canvas>
         </div>
+    </div>
 
-        <!-- TABLA DETALLE -->
-       <table class="tabla-emisiones" id="tablaEmisiones"></table>
-            
-    </div> <!-- 🔹 CIERRE CARD DERECHA -->
+    <!-- ABAJO DERECHA: Histórico -->
+    <div class="card cuadrante-historico">
+        <h3>Evolución histórica — Intensidad de emisión (kg CO₂e / kg FPCM)</h3>
+        <div class="chart-container">
+            <canvas id="graficoHistorico"></canvas>
+        </div>
+    </div>
 
-</div> <!-- 🔹 CIERRE GRID -->
+</div>
 
-<!-- RESULTADOS COMPLETOS -->
-<div class="card">
-  <h2>Resultados del Establecimiento</h2>
-<div id="textoResultados"></div>
+<div class="card" style="margin-top:10px;">
+    <h2>Resultados del Establecimiento</h2>
+    <div id="textoResultados"></div>
 </div>
 
 <div class="footer">
-Informe de uso exclusivo del establecimiento. Prohibida su reproducción sin autorización.
+    Informe de uso exclusivo del establecimiento. Prohibida su reproducción sin autorización.
 </div>
 
 <script>
@@ -257,6 +261,13 @@ const datos = {
     secuestro: 0.26,
     totalEmisiones: 171902,
 
+    // 🔹 Agregar años anteriores si se dispone del dato. Con solo 2024 el gráfico muestra una sola barra.
+    historico: [
+        // { anio: 2022, intensidad: 1.13 },
+        // { anio: 2023, intensidad: 1.09 },
+        { anio: 2024, intensidad: 1.05 }
+    ],
+
     gei: {
         metanoBiogenico: 110431,
         n2o: 40074,
@@ -264,19 +275,15 @@ const datos = {
         otros: 1662
     },
 
-    directas: 94.1,
-    indirectas: 5.9,
-
     fuentes: {
-        // 🔹 DIRECTAS
+        // DIRECTAS
         fermentacion: 105937,
         estiercolPastura: 19465,
         gestionEstiercol: 10164,
         residuosCultivos: 6972,
         fertilizantes: 5550,
         combustible: 13710,
-
-        // 🔹 INDIRECTAS
+        // INDIRECTAS
         limpieza: 344,
         trasladoAnimales: 0,
         compraAlimentos: 8067,
@@ -291,19 +298,15 @@ const datos = {
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    // 🔹 ENCABEZADO
     document.getElementById("nombreEstablecimiento").innerText = datos.establecimiento;
     document.getElementById("anioEstudio").innerText = datos.anio;
-
-    // 🔹 KPI
     document.getElementById("valorIntensidad").innerText =
         datos.intensidad.toFixed(2).replace(".", ",");
-
     document.getElementById("valorSecuestro").innerText =
         datos.secuestro.toFixed(2).replace(".", ",");
 
     // =========================================================
-    // 🔹 CLAVES
+    // CÁLCULOS BASE
     // =========================================================
 
     const directasKeys = [
@@ -317,17 +320,36 @@ document.addEventListener("DOMContentLoaded", function() {
         "transporteInsumos","otrosInsumos"
     ];
 
-    const totalFuentes = Object.values(datos.fuentes)
-        .reduce((acc, val) => acc + val, 0);
+    const nombres = {
+        fermentacion: "Fermentación entérica",
+        estiercolPastura: "Estiércol en pasturas",
+        gestionEstiercol: "Gestión del Estiércol",
+        residuosCultivos: "Residuos de cultivos",
+        fertilizantes: "Aplicación de fertilizantes",
+        combustible: "Combustibles",
+        limpieza: "Limpieza y mantenimiento",
+        trasladoAnimales: "Traslado de animales",
+        compraAlimentos: "Compra de alimentos",
+        energiaElectrica: "Energía eléctrica",
+        produccionFertilizantes: "Producción de fertilizantes",
+        transporteInsumos: "Transporte de insumos",
+        otrosInsumos: "Otros insumos"
+    };
 
-    // =========================================================
-    // 🔹 GRÁFICO TORTA (INDIRECTAS AGRUPADAS)
-    // =========================================================
+    const totalFuentes = Object.values(datos.fuentes).reduce((acc, val) => acc + val, 0);
 
     const valoresDirectas = directasKeys.map(k => datos.fuentes[k]);
+    const totalDirectasAbsoluto = valoresDirectas.reduce((acc, val) => acc + val, 0);
+    const porcentajeDirectasCalculado = (totalDirectasAbsoluto / totalFuentes) * 100;
 
-    const totalIndirectasAgrupadas = indirectasKeys
-        .reduce((acc, k) => acc + datos.fuentes[k], 0);
+    const totalIndirectasAgrupadas = indirectasKeys.reduce((acc, k) => acc + datos.fuentes[k], 0);
+    const porcentajeIndirectasCalculado = (totalIndirectasAgrupadas / totalFuentes) * 100;
+
+    function fmt(v) { return v.toFixed(1).replace(".", ",") + "%"; }
+
+    // =========================================================
+    // GRÁFICO TORTA
+    // =========================================================
 
     const datosTorta = [...valoresDirectas, totalIndirectasAgrupadas]
         .map(v => parseFloat(((v / totalFuentes) * 100).toFixed(1)));
@@ -336,12 +358,9 @@ document.addEventListener("DOMContentLoaded", function() {
         type: 'pie',
         data: {
             labels: [
-                'Fermentación entérica',
-                'Estiércol en pasturas',
-                'Gestión del estiércol',
-                'Residuos de cultivos',
-                'Aplicación de fertilizantes',
-                'Combustibles',
+                'Fermentación entérica','Estiércol en pasturas',
+                'Gestión del estiércol','Residuos de cultivos',
+                'Aplicación de fertilizantes','Combustibles',
                 'Emisiones indirectas'
             ],
             datasets: [{
@@ -352,11 +371,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 ]
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 14 } }
+            }
+        }
     });
 
     // =========================================================
-    // 🔹 DIRECTAS VS INDIRECTAS
+    // GRÁFICO DIRECTAS VS INDIRECTAS
     // =========================================================
 
     new Chart(document.getElementById('graficoDirectas'), {
@@ -364,8 +389,8 @@ document.addEventListener("DOMContentLoaded", function() {
         data: {
             labels: ['Participación sobre el total (%)'],
             datasets: [
-                { label: 'Directas (%)', data: [datos.directas], backgroundColor: '#145a32' },
-                { label: 'Indirectas (%)', data: [datos.indirectas], backgroundColor: '#a9dfbf' }
+                { label: 'Directas (%)', data: [porcentajeDirectasCalculado], backgroundColor: '#145a32' },
+                { label: 'Indirectas (%)', data: [porcentajeIndirectasCalculado], backgroundColor: '#a9dfbf' }
             ]
         },
         options: {
@@ -375,12 +400,15 @@ document.addEventListener("DOMContentLoaded", function() {
             scales: {
                 x: { stacked: true, max: 100, beginAtZero: true },
                 y: { stacked: true }
+            },
+            plugins: {
+                legend: { labels: { font: { size: 11 }, boxWidth: 14 } }
             }
         }
     });
 
     // =========================================================
-    // 🔹 GEI
+    // GRÁFICO GEI
     // =========================================================
 
     const porcentajeGEI = Object.values(datos.gei)
@@ -404,144 +432,131 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // =========================================================
-    // 🔹 TABLA DINÁMICA
+    // GRÁFICO HISTÓRICO
     // =========================================================
 
-    const tabla = document.getElementById("tablaEmisiones");
+    const aniosHistorico = datos.historico.map(d => d.anio);
+    const valoresHistorico = datos.historico.map(d => d.intensidad);
 
-    function formatoPorcentaje(v){
-        return v.toFixed(1).replace(".", ",") + "%";
-    }
-
-    const nombres = {
-        fermentacion:"Fermentación entérica",
-        estiercolPastura:"Estiércol en pasturas",
-        gestionEstiercol:"Gestión del Estiércol",
-        residuosCultivos:"Residuos de cultivos",
-        fertilizantes:"Aplicación de fertilizantes",
-        combustible:"Combustibles",
-        limpieza:"Limpieza y mantenimiento",
-        trasladoAnimales:"Traslado de animales",
-        compraAlimentos:"Compra de alimentos",
-        energiaElectrica:"Energía eléctrica",
-        produccionFertilizantes:"Producción de fertilizantes",
-        transporteInsumos:"Transporte de insumos",
-        otrosInsumos:"Otros insumos"
-    };
-
-    let html = "";
-
-    html += `<tr><td class="titulo" colspan="2">Emisiones Directas</td></tr>`;
-
-    let totalDirectas = 0;
-
-    directasKeys.forEach(k=>{
-        const p = (datos.fuentes[k]/totalFuentes)*100;
-        totalDirectas += p;
-        html += `
-        <tr>
-            <td>${nombres[k]}</td>
-            <td class="valor">${formatoPorcentaje(p)}</td>
-        </tr>`;
+    new Chart(document.getElementById('graficoHistorico'), {
+        type: 'bar',
+        data: {
+            labels: aniosHistorico,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Intensidad (kg CO₂e/kg FPCM)',
+                    data: valoresHistorico,
+                    backgroundColor: '#388e3c',
+                    order: 2
+                },
+                {
+                    type: 'line',
+                    label: 'Tendencia',
+                    data: valoresHistorico,
+                    borderColor: '#145a32',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#145a32',
+                    tension: 0.3,
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { font: { size: 11 }, boxWidth: 14 } }
+            },
+            scales: {
+                y: { beginAtZero: false, ticks: { font: { size: 11 } } },
+                x: { ticks: { font: { size: 11 } } }
+            }
+        }
     });
-
-    html += `
-    <tr>
-        <td><strong>Total Directas</strong></td>
-        <td class="valor"><strong>${formatoPorcentaje(totalDirectas)}</strong></td>
-    </tr>`;
-
-    html += `<tr><td class="titulo" colspan="2">Emisiones Indirectas</td></tr>`;
-
-    let totalIndirectas = 0;
-
-    indirectasKeys.forEach(k=>{
-        const p = (datos.fuentes[k]/totalFuentes)*100;
-        totalIndirectas += p;
-        html += `
-        <tr>
-            <td>${nombres[k]}</td>
-            <td class="valor">${formatoPorcentaje(p)}</td>
-        </tr>`;
-    });
-
-    html += `
-    <tr>
-        <td><strong>Total Indirectas</strong></td>
-        <td class="valor"><strong>${formatoPorcentaje(totalIndirectas)}</strong></td>
-    </tr>`;
-
-    tabla.innerHTML = html;
 
     // =========================================================
-    // 🔹 TEXTO AUTOMÁTICO (TOP 3 REAL)
+    // TABLA HORIZONTAL (dos columnas separadas)
+    // =========================================================
+
+    const tablaD = document.getElementById("tablaDirectas");
+    const tablaI = document.getElementById("tablaIndirectas");
+
+    let htmlD = `<tr><td class="titulo" colspan="2">Emisiones Directas</td></tr>`;
+    let totalD = 0;
+    directasKeys.forEach(k => {
+        const p = (datos.fuentes[k] / totalFuentes) * 100;
+        totalD += p;
+        htmlD += `<tr><td>${nombres[k]}</td><td class="valor">${fmt(p)}</td></tr>`;
+    });
+    htmlD += `<tr><td><strong>Total Directas</strong></td><td class="valor"><strong>${fmt(totalD)}</strong></td></tr>`;
+    tablaD.innerHTML = htmlD;
+
+    let htmlI = `<tr><td class="titulo" colspan="2">Emisiones Indirectas</td></tr>`;
+    let totalI = 0;
+    indirectasKeys.forEach(k => {
+        const p = (datos.fuentes[k] / totalFuentes) * 100;
+        totalI += p;
+        htmlI += `<tr><td>${nombres[k]}</td><td class="valor">${fmt(p)}</td></tr>`;
+    });
+    htmlI += `<tr><td><strong>Total Indirectas</strong></td><td class="valor"><strong>${fmt(totalI)}</strong></td></tr>`;
+    tablaI.innerHTML = htmlI;
+
+    // =========================================================
+    // TEXTO AUTOMÁTICO — RESULTADOS DEL ESTABLECIMIENTO
     // =========================================================
 
     const contenedorTexto = document.getElementById("textoResultados");
 
-    const fuentesOrdenadas = Object.entries(datos.fuentes)
-        .sort((a,b)=> b[1]-a[1]);
-
+    const fuentesOrdenadas = Object.entries(datos.fuentes).sort((a, b) => b[1] - a[1]);
     const top1 = fuentesOrdenadas[0][0];
     const top2 = fuentesOrdenadas[1][0];
     const top3 = fuentesOrdenadas[2][0];
 
-    const porcentaje1 = ((datos.fuentes[top1]/totalFuentes)*100).toFixed(1).replace(".",",");
-    const porcentaje2 = ((datos.fuentes[top2]/totalFuentes)*100).toFixed(1).replace(".",",");
-    const porcentaje3 = ((datos.fuentes[top3]/totalFuentes)*100).toFixed(1).replace(".",",");
+    const p1 = ((datos.fuentes[top1] / totalFuentes) * 100).toFixed(1).replace(".", ",");
+    const p2 = ((datos.fuentes[top2] / totalFuentes) * 100).toFixed(1).replace(".", ",");
+    const p3 = ((datos.fuentes[top3] / totalFuentes) * 100).toFixed(1).replace(".", ",");
 
     const nombresRedaccion = {
-        fermentacion:"fermentación entérica",
-        estiercolPastura:"estiércol en pasturas",
-        gestionEstiercol:"gestión del estiércol",
-        residuosCultivos:"residuos de cultivos",
-        fertilizantes:"aplicación de fertilizantes",
-        combustible:"combustión de combustibles",
-        limpieza:"limpieza y mantenimiento",
-        trasladoAnimales:"traslado de animales",
-        compraAlimentos:"compra de alimentos",
-        energiaElectrica:"energía eléctrica",
-        produccionFertilizantes:"producción de fertilizantes",
-        transporteInsumos:"transporte de insumos",
-        otrosInsumos:"otros insumos"
+        fermentacion: "fermentación entérica",
+        estiercolPastura: "estiércol en pasturas",
+        gestionEstiercol: "gestión del estiércol",
+        residuosCultivos: "residuos de cultivos",
+        fertilizantes: "aplicación de fertilizantes",
+        combustible: "combustión de combustibles",
+        limpieza: "limpieza y mantenimiento",
+        trasladoAnimales: "traslado de animales",
+        compraAlimentos: "compra de alimentos",
+        energiaElectrica: "energía eléctrica",
+        produccionFertilizantes: "producción de fertilizantes",
+        transporteInsumos: "transporte de insumos",
+        otrosInsumos: "otros insumos"
     };
 
-    const geiPrincipal = Object.keys(datos.gei)
-        .reduce((a,b)=> datos.gei[a]>datos.gei[b]?a:b);
+    const geiPrincipal = Object.keys(datos.gei).reduce((a, b) => datos.gei[a] > datos.gei[b] ? a : b);
 
     const nombresGEI = {
-        metanoBiogenico:"metano biogénico (CH₄)",
-        n2o:"óxido nitroso (N₂O)",
-        co2Fosil:"dióxido de carbono fósil (CO₂)",
-        otros:"otros gases"
+        metanoBiogenico: "metano biogénico (CH₄)",
+        n2o: "óxido nitroso (N₂O)",
+        co2Fosil: "dióxido de carbono fósil (CO₂)",
+        otros: "otros gases"
     };
 
-    const porcentajeGEIPrincipal =
-        ((datos.gei[geiPrincipal]/datos.totalEmisiones)*100)
-        .toFixed(1).replace(".",",");
+    const porcentajeGEIPrincipal = ((datos.gei[geiPrincipal] / datos.totalEmisiones) * 100)
+        .toFixed(1).replace(".", ",");
 
-    const textoFinal = `
-    <p>
-    La intensidad de emisiones fue de <strong>${datos.intensidad.toFixed(2).replace(".",",")} kg CO₂e/kg leche cruda corregida en % de grasa y proteína(FPCM)</strong> para el período analizado (${datos.anio}).
-    </p>
-
-     <p> El <strong>${datos.directas.toFixed(1).replace(".", ",")}%</strong> de las emisiones corresponden a fuentes directas dentro del establecimiento,
-    mientras que el <strong>${datos.indirectas.toFixed(1).replace(".", ",")}%</strong> restante proviene de emisiones indirectas asociadas a insumos y energía.
-    </p>
-
-    <p>
-    La fuente mas representativa fue la <strong>${nombresRedaccion[top1]} (${porcentaje1}%)</strong>,
-    seguida por <strong>${nombresRedaccion[top2]} (${porcentaje2}%)</strong>
-    y <strong>${nombresRedaccion[top3]} (${porcentaje3}%)</strong>.
-    </p>
-
-    <p>
-    El gas predominante fue el <strong>${nombresGEI[geiPrincipal]}</strong>,
-    representando el <strong>${porcentajeGEIPrincipal}%</strong> del total.
-    </p>
+    contenedorTexto.innerHTML = `
+        <p>La intensidad de emisiones fue de <strong>${datos.intensidad.toFixed(2).replace(".", ",")} kg CO₂e/kg leche cruda corregida en % de grasa y proteína (FPCM)</strong> para el período analizado (${datos.anio}).</p>
+        <p>El <strong>${porcentajeDirectasCalculado.toFixed(1).replace(".", ",")}%</strong> de las emisiones corresponden a fuentes directas dentro del establecimiento,
+        mientras que el <strong>${porcentajeIndirectasCalculado.toFixed(1).replace(".", ",")}%</strong> restante proviene de emisiones indirectas asociadas a insumos y energía.</p>
+        <p>La fuente más representativa fue la <strong>${nombresRedaccion[top1]} (${p1}%)</strong>,
+        seguida por <strong>${nombresRedaccion[top2]} (${p2}%)</strong>
+        y <strong>${nombresRedaccion[top3]} (${p3}%)</strong>.</p>
+        <p>El gas predominante fue el <strong>${nombresGEI[geiPrincipal]}</strong>,
+        representando el <strong>${porcentajeGEIPrincipal}%</strong> del total.</p>
     `;
-
-    contenedorTexto.innerHTML = textoFinal;
 
 });
 </script>

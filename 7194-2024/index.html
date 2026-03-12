@@ -103,38 +103,32 @@ h1 { color: #1b5e20; margin-bottom: 5px; font-weight: 600; }
 
 .cuadrante-torta .chart-container     { height: 360px; }
 .cuadrante-gei .chart-container       { height: 220px; }
-.cuadrante-directas .chart-container  { height: 100px; }
-.cuadrante-historico .chart-container { height: 220px; }
+.cuadrante-directas .chart-container  { height: 360px; }
+.cuadrante-historico .chart-container { height: 260px; }
 
-/* TABLA HORIZONTAL: dos columnas lado a lado */
-.tabla-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 16px;
-    margin-top: 10px;
-    font-size: 11px;
-}
-
-.tabla-col table {
+/* TABLA VERTICAL en dos bloques uno debajo del otro */
+.tabla-vertical {
     width: 100%;
     border-collapse: collapse;
+    font-size: 11.5px;
+    margin-top: 10px;
 }
 
-.tabla-col table td {
-    padding: 2.5px 4px;
+.tabla-vertical td {
+    padding: 3px 4px;
     border-bottom: 1px solid #eee;
 }
 
-.tabla-col .titulo {
+.tabla-vertical .titulo {
     font-weight: 600;
-    padding-top: 6px;
+    padding-top: 8px;
     padding-bottom: 4px;
     border-bottom: 2px solid #1b5e20;
-    font-size: 11.5px;
+    font-size: 12px;
     color: #1b5e20;
 }
 
-.tabla-col .valor {
+.tabla-vertical .valor {
     text-align: right;
     font-weight: 600;
     white-space: nowrap;
@@ -205,21 +199,10 @@ h1 { color: #1b5e20; margin-bottom: 5px; font-weight: 600; }
         </div>
     </div>
 
-    <!-- ARRIBA DERECHA: Directas/Indirectas + tabla horizontal -->
+    <!-- ARRIBA DERECHA: Tabla vertical directas + indirectas -->
     <div class="card cuadrante-directas">
         <h3>Emisiones Directas e Indirectas (%)</h3>
-        <div class="chart-container">
-            <canvas id="graficoDirectas"></canvas>
-        </div>
-        <!-- Tabla en dos columnas -->
-        <div class="tabla-wrapper">
-            <div class="tabla-col">
-                <table id="tablaDirectas"></table>
-            </div>
-            <div class="tabla-col">
-                <table id="tablaIndirectas"></table>
-            </div>
-        </div>
+        <table class="tabla-vertical" id="tablaEmisiones"></table>
     </div>
 
     <!-- ABAJO IZQUIERDA: GEI -->
@@ -230,7 +213,7 @@ h1 { color: #1b5e20; margin-bottom: 5px; font-weight: 600; }
         </div>
     </div>
 
-    <!-- ABAJO DERECHA: Histórico -->
+    <!-- ABAJO DERECHA: Histórico apilado -->
     <div class="card cuadrante-historico">
         <h3>Evolución histórica — Intensidad de emisión (kg CO₂e / kg FPCM)</h3>
         <div class="chart-container">
@@ -261,11 +244,13 @@ const datos = {
     secuestro: 0.01,
     totalEmisiones: 10593520.0209148,
 
-    // 🔹 Agregar años anteriores si se dispone del dato. Con solo 2024 el gráfico muestra una sola barra.
+    // 🔹 Histórico: para cada año indicar intensidad total,
+    //    porcentaje de directas e indirectas sobre el total.
+    //    Con solo 2024 el gráfico muestra una sola barra.
     historico: [
-        // { anio: 2022, intensidad: 1.13 },
-        { anio: 2023, intensidad: 0.87 },
-        { anio: 2024, intensidad: 0.91 }
+        // { anio: 2022, intensidad: 1.13, pctDirectas: 91.5, pctIndirectas: 8.5 },
+        { anio: 2023, intensidad: 0.87, pctDirectas: 78.8, pctIndirectas: 20.2 },
+        { anio: 2024, intensidad: 0.91, pctDirectas: 76.8, pctIndirectas: 23.2 }
     ],
 
     gei: {
@@ -276,15 +261,14 @@ const datos = {
     },
 
     fuentes: {
-                // 🔹 DIRECTAS
+        // DIRECTAS
         fermentacion: 5316649.68061096,
         estiercolPastura: 281594.716457462,
         gestionEstiercol: 1989037.73140754,
         residuosCultivos: 23720.46080976,
         fertilizantes: 39286.6192979333,
         combustible: 439550.555715098,
-
-        // 🔹 INDIRECTAS
+        // INDIRECTAS
         limpieza: 11903.5943030544,
         trasladoAnimales: 0,
         compraAlimentos: 1333913.56718869,
@@ -382,33 +366,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // =========================================================
-    // GRÁFICO DIRECTAS VS INDIRECTAS
-    // =========================================================
-
-    new Chart(document.getElementById('graficoDirectas'), {
-        type: 'bar',
-        data: {
-            labels: ['Participación sobre el total (%)'],
-            datasets: [
-                { label: 'Directas (%)', data: [porcentajeDirectasCalculado], backgroundColor: '#145a32' },
-                { label: 'Indirectas (%)', data: [porcentajeIndirectasCalculado], backgroundColor: '#a9dfbf' }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y',
-            scales: {
-                x: { stacked: true, max: 100, beginAtZero: true },
-                y: { stacked: true }
-            },
-            plugins: {
-                legend: { labels: { font: { size: 11 }, boxWidth: 14 } }
-            }
-        }
-    });
-
-    // =========================================================
     // GRÁFICO GEI
     // =========================================================
 
@@ -433,11 +390,18 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // =========================================================
-    // GRÁFICO HISTÓRICO
+    // GRÁFICO HISTÓRICO — BARRAS APILADAS (directas + indirectas)
     // =========================================================
 
     const aniosHistorico = datos.historico.map(d => d.anio);
-    const valoresHistorico = datos.historico.map(d => d.intensidad);
+
+    const valDirectasHist = datos.historico.map(d =>
+        parseFloat((d.intensidad * d.pctDirectas / 100).toFixed(3))
+    );
+    const valIndirectasHist = datos.historico.map(d =>
+        parseFloat((d.intensidad * d.pctIndirectas / 100).toFixed(3))
+    );
+    const valTotalesHist = datos.historico.map(d => d.intensidad);
 
     new Chart(document.getElementById('graficoHistorico'), {
         type: 'bar',
@@ -445,23 +409,32 @@ document.addEventListener("DOMContentLoaded", function() {
             labels: aniosHistorico,
             datasets: [
                 {
-                    type: 'bar',
-                    label: 'Intensidad (kg CO₂e/kg FPCM)',
-                    data: valoresHistorico,
-                    backgroundColor: '#388e3c',
+                    label: 'Directas (kg CO₂e/kg FPCM)',
+                    data: valDirectasHist,
+                    backgroundColor: '#145a32',
+                    stack: 'stack',
                     order: 2
                 },
                 {
+                    label: 'Indirectas (kg CO₂e/kg FPCM)',
+                    data: valIndirectasHist,
+                    backgroundColor: '#a9dfbf',
+                    stack: 'stack',
+                    order: 2
+                },
+                {
+                    // Línea de tendencia sobre los totales
                     type: 'line',
                     label: 'Tendencia',
-                    data: valoresHistorico,
+                    data: valTotalesHist,
                     borderColor: '#145a32',
                     backgroundColor: 'transparent',
                     borderWidth: 2,
                     pointRadius: 4,
                     pointBackgroundColor: '#145a32',
                     tension: 0.3,
-                    order: 1
+                    order: 1,
+                    stack: undefined
                 }
             ]
         },
@@ -469,45 +442,86 @@ document.addEventListener("DOMContentLoaded", function() {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { labels: { font: { size: 11 }, boxWidth: 14 } }
+                legend: { labels: { font: { size: 11 }, boxWidth: 14 } },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            if (ctx.dataset.type === 'line') return null;
+                            const total = datos.historico[ctx.dataIndex].intensidad;
+                            return ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2).replace(".",",")} (total: ${total.toFixed(2).replace(".",",")} kg CO₂e/kg FPCM)`;
+                        }
+                    }
+                }
             },
             scales: {
-    y: {
-        min: 0,
-        max: 3,
-        ticks: { font: { size: 11 } }
-    },
-    x: { ticks: { font: { size: 11 } } }
-}
-        }
+                x: { stacked: true, ticks: { font: { size: 11 } } },
+                y: {
+                    stacked: true,
+                    min: 0,
+                    max: 3,
+                    ticks: { font: { size: 11 } },
+                    title: {
+                        display: true,
+                        text: 'kg CO₂e / kg FPCM',
+                        font: { size: 10 },
+                        color: '#5c6f66'
+                    }
+                }
+            }
+        },
+        plugins: [{
+            // Plugin inline para dibujar el valor total encima de cada barra
+            id: 'labelTotales',
+            afterDatasetsDraw(chart) {
+                const { ctx, data, scales: { x, y } } = chart;
+                ctx.save();
+                ctx.font = 'bold 11px Inter, sans-serif';
+                ctx.fillStyle = '#1f2a24';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+
+                datos.historico.forEach((d, i) => {
+                    const xPos = x.getPixelForValue(i);
+                    const yPos = y.getPixelForValue(d.intensidad);
+                    ctx.fillText(
+                        d.intensidad.toFixed(2).replace(".", ","),
+                        xPos,
+                        yPos - 4
+                    );
+                });
+
+                ctx.restore();
+            }
+        }]
     });
 
     // =========================================================
-    // TABLA HORIZONTAL (dos columnas separadas)
+    // TABLA VERTICAL — directas arriba, indirectas abajo
     // =========================================================
 
-    const tablaD = document.getElementById("tablaDirectas");
-    const tablaI = document.getElementById("tablaIndirectas");
+    const tabla = document.getElementById("tablaEmisiones");
 
-    let htmlD = `<tr><td class="titulo" colspan="2">Emisiones Directas</td></tr>`;
+    let html = "";
+
+    html += `<tr><td class="titulo" colspan="2">Emisiones Directas</td></tr>`;
     let totalD = 0;
     directasKeys.forEach(k => {
         const p = (datos.fuentes[k] / totalFuentes) * 100;
         totalD += p;
-        htmlD += `<tr><td>${nombres[k]}</td><td class="valor">${fmt(p)}</td></tr>`;
+        html += `<tr><td>${nombres[k]}</td><td class="valor">${fmt(p)}</td></tr>`;
     });
-    htmlD += `<tr><td><strong>Total Directas</strong></td><td class="valor"><strong>${fmt(totalD)}</strong></td></tr>`;
-    tablaD.innerHTML = htmlD;
+    html += `<tr><td><strong>Total Directas</strong></td><td class="valor"><strong>${fmt(totalD)}</strong></td></tr>`;
 
-    let htmlI = `<tr><td class="titulo" colspan="2">Emisiones Indirectas</td></tr>`;
+    html += `<tr><td class="titulo" colspan="2">Emisiones Indirectas</td></tr>`;
     let totalI = 0;
     indirectasKeys.forEach(k => {
         const p = (datos.fuentes[k] / totalFuentes) * 100;
         totalI += p;
-        htmlI += `<tr><td>${nombres[k]}</td><td class="valor">${fmt(p)}</td></tr>`;
+        html += `<tr><td>${nombres[k]}</td><td class="valor">${fmt(p)}</td></tr>`;
     });
-    htmlI += `<tr><td><strong>Total Indirectas</strong></td><td class="valor"><strong>${fmt(totalI)}</strong></td></tr>`;
-    tablaI.innerHTML = htmlI;
+    html += `<tr><td><strong>Total Indirectas</strong></td><td class="valor"><strong>${fmt(totalI)}</strong></td></tr>`;
+
+    tabla.innerHTML = html;
 
     // =========================================================
     // TEXTO AUTOMÁTICO — RESULTADOS DEL ESTABLECIMIENTO
